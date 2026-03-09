@@ -100,10 +100,10 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                 <div className="px-8 py-6 bg-gradient-to-r from-green-50 to-white flex items-center justify-between border-b border-gray-50">
                     <div>
                         <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-                            {editingData ? "Refine User Identity" : "Provision New Identity"}
+                            {editingData ? "Edit User" : "Add User"}
                         </h2>
                         <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mt-1">
-                            {editingData ? "System Access Recalibration" : "Cross-Architecture Auth Provisioning"}
+                            {editingData ? "Update user details" : "Create a new user"}
                         </p>
                     </div>
                     <button onClick={onClose} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
@@ -115,7 +115,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {/* Name */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Full Identity Name *</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Full Name *</label>
                             <div className="relative group">
                                 <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input
@@ -123,7 +123,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                     name="name"
                                     type="text"
                                     className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 transition-all font-bold text-gray-700 text-sm"
-                                    placeholder="e.g. Victor Prime"
+                                    placeholder="John Doe"
                                     value={formData.name}
                                     onChange={handleChange}
                                 />
@@ -132,7 +132,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                         {/* Email */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Authentication Email *</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Email *</label>
                             <div className="relative group">
                                 <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input
@@ -140,7 +140,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                     name="email"
                                     type="email"
                                     className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 transition-all font-bold text-gray-700 text-sm"
-                                    placeholder="identity@crm-link.net"
+                                    placeholder="name@example.com"
                                     value={formData.email}
                                     onChange={handleChange}
                                 />
@@ -150,7 +150,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                         {/* Password */}
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">
-                                {editingData ? "Reset Password (Optional)" : "Primary Password *"}
+                                {editingData ? "Reset Password (Optional)" : "Password *"}
                             </label>
                             <div className="relative group">
                                 <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
@@ -168,7 +168,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                         {/* Role */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Authority Clearance</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Role</label>
                             <div className="relative group">
                                 <FiShield className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors z-10" />
                                 <select
@@ -177,10 +177,10 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                     value={formData.role}
                                     onChange={handleChange}
                                 >
-                                    {isSuperAdmin && <option value="super_admin">System: Super Admin</option>}
-                                    <option value="company_admin">Platform: Company Admin</option>
-                                    <option value="branch_manager">Regional: Branch Manager</option>
-                                    <option value="sales">Operation: Sales Executive</option>
+                                    {isSuperAdmin && <option value="super_admin">Super Admin</option>}
+                                    <option value="company_admin">Company Admin</option>
+                                    <option value="branch_manager">Branch Manager</option>
+                                    <option value="sales">Sales User</option>
                                 </select>
                             </div>
                         </div>
@@ -188,7 +188,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                         {/* Company Selection (Super Admin only) */}
                         {isSuperAdmin && (
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Parent Company Cluster</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Company</label>
                                 <div className="relative group">
                                     <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors z-10" />
                                     <select
@@ -197,7 +197,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                         value={formData.companyId}
                                         onChange={handleChange}
                                     >
-                                        <option value="">Global / Internal</option>
+                                        <option value="">No Company</option>
                                         {companies.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                                     </select>
                                 </div>
@@ -207,7 +207,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                         {/* Branch Selection */}
                         {(formData.companyId || isCompanyAdmin) && (
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Operational Branch Node</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Branch</label>
                                 <div className="relative group">
                                     <FiLayers className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors z-10" />
                                     <select
@@ -216,7 +216,7 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                         value={formData.branchId}
                                         onChange={handleChange}
                                     >
-                                        <option value="">No Specific Node</option>
+                                        <option value="">No Branch</option>
                                         {branches.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
                                     </select>
                                 </div>
@@ -230,9 +230,9 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                             <FiInfo className="text-green-500" />
                         </div>
                         <div>
-                            <p className="text-xs font-black text-gray-800 uppercase tracking-wider">Identity Activation Protocol</p>
+                            <p className="text-xs font-black text-gray-800 uppercase tracking-wider">Note</p>
                             <p className="text-[10px] font-bold text-gray-500 mt-1 leading-relaxed">
-                                Upon initialization, the user will receive immediate authentication rights. Ensure identity verification is completed before committing to the secure cluster.
+                                This user will have immediate access to the system.
                             </p>
                         </div>
                     </div>
@@ -244,14 +244,14 @@ const AddUserModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                             onClick={onClose}
                             className="flex-1 px-8 py-4 bg-gray-100 text-gray-500 font-black rounded-2xl hover:bg-gray-200 transition-all text-xs uppercase tracking-widest"
                         >
-                            Abort
+                            Cancel
                         </button>
                         <button
                             type="submit"
                             className="flex-[2] flex items-center justify-center gap-3 px-8 py-4 bg-green-500 text-white font-black rounded-2xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-[1.02] active:scale-95 transition-all text-xs uppercase tracking-widest"
                         >
                             <FiPlus size={18} />
-                            {editingData ? "Recalibrate Identity" : "Commit Provisioning"}
+                            {editingData ? "Save Changes" : "Save User"}
                         </button>
                     </div>
                 </form>

@@ -29,9 +29,14 @@ const leadSchema = new mongoose.Schema(
       default: "New"
     },
 
-    source: {
+    source: { // Legacy Support
       type: String,
       default: "Website"
+    },
+
+    sourceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LeadSource"
     },
 
     value: {
@@ -87,8 +92,18 @@ const leadSchema = new mongoose.Schema(
       default: false
     },
 
+    convertedAt: {
+      type: Date
+    },
+
   },
   { timestamps: true }
 );
+
+leadSchema.index({ companyId: 1 });
+leadSchema.index({ email: 1, companyId: 1 });
+leadSchema.index({ phone: 1, companyId: 1 });
+leadSchema.index({ assignedTo: 1 });
+leadSchema.index({ branchId: 1 });
 
 module.exports = mongoose.model("Lead", leadSchema);

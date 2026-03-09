@@ -21,11 +21,11 @@ const Reports = () => {
                 API.get("/reports/user-performance"),
                 API.get("/reports/deal-forecasting")
             ]);
-            setRevenue(rev.data.map(d => ({ name: `Month ${d._id}`, value: d.revenue })));
-            setStages(stg.data.map(d => ({ name: d._id?.replace('_', ' ') || 'Unknown', value: d.count })));
-            setConversions(conv.data);
-            setPerformance(perf.data.map(d => ({ name: d._id?.name || "AI Agent", value: d.totalValue })));
-            setForecast(fore.data.map(d => ({ name: d.stage, weighted: Math.round(d.weightedValue), actual: Math.round(d.actualValue) })));
+            setRevenue((rev.data?.data || rev.data).map(d => ({ name: `Month ${d._id}`, value: d.revenue })));
+            setStages((stg.data?.data || stg.data).map(d => ({ name: d._id?.replace('_', ' ') || 'Unknown', value: d.count })));
+            setConversions(conv.data?.data || conv.data);
+            setPerformance((perf.data?.data || perf.data).map(d => ({ name: d._id?.name || "AI Agent", value: d.totalValue })));
+            setForecast((fore.data?.data || fore.data).map(d => ({ name: d.stage, weighted: Math.round(d.weightedValue), actual: Math.round(d.actualValue) })));
         } catch (err) {
             console.error(err);
         } finally {
@@ -37,7 +37,7 @@ const Reports = () => {
         fetchReports();
     }, []);
 
-    if (loading) return <div className="h-[70vh] flex items-center justify-center font-black text-slate-300 uppercase tracking-[0.2em] animate-pulse">Synchronizing Analytics...</div>;
+    if (loading) return <div className="h-[70vh] flex items-center justify-center font-black text-slate-300 uppercase tracking-[0.2em] animate-pulse">Loading...</div>;
 
     const COLORS = ['#3b82f6', '#6366f1', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'];
 
@@ -47,13 +47,13 @@ const Reports = () => {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-green-50/30 rounded-full blur-3xl -mr-20 -mt-20"></div>
                 <div className="relative z-10">
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tighter">System Intelligence</h1>
-                    <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 opacity-60">Global Analytics & Performance Matrix</p>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tighter">Business Reports</h1>
+                    <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 opacity-60">See how your business is doing.</p>
                 </div>
                 <div className="flex items-center gap-4 relative z-10">
                     <div className="px-5 py-3 bg-gray-50 rounded-2xl border border-gray-100">
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Operational Horizon</p>
-                        <p className="text-sm font-black text-gray-900">Fiscal Period: Q1-2024</p>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Time Period</p>
+                        <p className="text-sm font-black text-gray-900">Current Period: Q1-2024</p>
                     </div>
                 </div>
             </div>
@@ -66,8 +66,8 @@ const Reports = () => {
                         <div className="flex items-center gap-4">
                             <div className="p-3.5 bg-green-50 text-green-600 rounded-[1.25rem] shadow-sm"><FiTrendingUp size={24} /></div>
                             <div>
-                                <h3 className="text-xl font-black text-gray-800 tracking-tight">Revenue Progression</h3>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Yield Growth Projection</p>
+                                <h3 className="text-xl font-black text-gray-800 tracking-tight">Revenue</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Your revenue</p>
                             </div>
                         </div>
                         <span className="text-2xl font-black text-green-600">₹{revenue.reduce((a, b) => a + b.value, 0).toLocaleString('en-IN')}</span>
@@ -89,7 +89,7 @@ const Reports = () => {
                                     <Area type="monotone" dataKey="value" stroke="#22c55e" fillOpacity={1} fill="url(#colorGreen)" strokeWidth={5} />
                                 </AreaChart>
                             </ResponsiveContainer>
-                        ) : <div className="h-full flex items-center justify-center text-gray-300 font-bold italic">No intelligence signals detected.</div>}
+                        ) : <div className="h-full flex items-center justify-center text-gray-300 font-bold italic">No data found.</div>}
                     </div>
                 </div>
 
@@ -99,8 +99,8 @@ const Reports = () => {
                     <div className="flex items-center gap-4 mb-10 relative z-10">
                         <div className="p-3.5 bg-white/10 text-white rounded-[1.25rem] backdrop-blur-md"><FiTarget size={24} /></div>
                         <div>
-                            <h3 className="text-xl font-black text-white tracking-tight">Stage Weight Distribution</h3>
-                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">Active Deal Architecture</p>
+                            <h3 className="text-xl font-black text-white tracking-tight">Deals by Stage</h3>
+                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">Deal stages</p>
                         </div>
                     </div>
                     <div className="flex-1 w-full flex flex-col sm:flex-row items-center justify-between gap-12 relative z-10 pb-4">
@@ -122,7 +122,7 @@ const Reports = () => {
                                         <Tooltip contentStyle={{ background: '#000', border: 'none', color: '#fff', borderRadius: '24px', padding: '12px' }} />
                                     </PieChart>
                                 </ResponsiveContainer>
-                            ) : <div className="h-full flex items-center justify-center text-gray-700 font-bold italic uppercase tracking-widest text-xs">Pipeline dormant.</div>}
+                            ) : <div className="h-full flex items-center justify-center text-gray-700 font-bold italic uppercase tracking-widest text-xs">No active deals.</div>}
                         </div>
                         <div className="flex flex-col gap-6 w-full sm:w-auto min-w-[140px]">
                             {stages.map((s, i) => (
@@ -144,18 +144,18 @@ const Reports = () => {
                         <div className="flex items-center gap-4">
                             <div className="p-3.5 bg-green-50 text-green-600 rounded-[1.25rem]"><FiCheckCircle size={24} /></div>
                             <div>
-                                <h3 className="text-2xl font-black text-gray-900 tracking-tight">Acquisition Matrix</h3>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Lead to Client Convergence</p>
+                                <h3 className="text-2xl font-black text-gray-900 tracking-tight">Leads to Customers</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Conversion rate</p>
                             </div>
                         </div>
-                        <p className="text-gray-500 font-bold text-sm leading-relaxed max-w-md">Analytics reflect the successful transition of cold prospects into operational client nodes within the current fiscal window.</p>
+                        <p className="text-gray-500 font-bold text-sm leading-relaxed max-w-md">This shows how many of your leads turned into paying customers during this period.</p>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-6 bg-gray-50 rounded-[2rem] border border-gray-100 shadow-inner">
-                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Inbound Signals</p>
+                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Leads</p>
                                 <p className="text-3xl font-black text-gray-900">{conversions.total}</p>
                             </div>
                             <div className="p-6 bg-green-50 rounded-[2rem] border border-green-100">
-                                <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-1">Validated Conversions</p>
+                                <p className="text-[9px] font-black text-green-600 uppercase tracking-widest mb-1">New Customers</p>
                                 <p className="text-3xl font-black text-green-600">{conversions.converted}</p>
                             </div>
                         </div>
@@ -167,7 +167,7 @@ const Reports = () => {
                         </svg>
                         <div className="absolute flex flex-col items-center">
                             <span className="text-5xl font-black text-gray-900">{conversions.total ? Math.round((conversions.converted / conversions.total) * 100) : 0}%</span>
-                            <span className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mt-1">Intelligence Apex</span>
+                            <span className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mt-1">Success Rate</span>
                         </div>
                     </div>
                 </div>
@@ -177,8 +177,8 @@ const Reports = () => {
                     <div className="flex items-center gap-4 mb-12">
                         <div className="p-3.5 bg-gray-900 text-white rounded-[1.25rem]"><FiUser size={24} /></div>
                         <div>
-                            <h3 className="text-2xl font-black text-gray-900 tracking-tight">Performance Spectrum</h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Personnel Resource Productivity</p>
+                            <h3 className="text-2xl font-black text-gray-900 tracking-tight">Team Performance</h3>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Member performance</p>
                         </div>
                     </div>
                     <div className="h-96 w-full -ml-8">
@@ -192,7 +192,7 @@ const Reports = () => {
                                     <Bar dataKey="value" fill="#22c55e" radius={[0, 20, 20, 0]} barSize={40} />
                                 </BarChart>
                             </ResponsiveContainer>
-                        ) : <div className="h-full flex items-center justify-center text-gray-300 font-bold italic uppercase tracking-widest text-xs">Awaiting data entry.</div>}
+                        ) : <div className="h-full flex items-center justify-center text-gray-300 font-bold italic uppercase tracking-widest text-xs">No data to show yet.</div>}
                     </div>
                 </div>
 
@@ -201,12 +201,12 @@ const Reports = () => {
                     <div className="flex items-center gap-4 mb-12">
                         <div className="p-3.5 bg-green-50 text-green-600 rounded-[1.25rem]"><FiTrendingUp size={24} /></div>
                         <div>
-                            <h3 className="text-2xl font-black text-gray-900 tracking-tight">Revenue Forecasting</h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Probability-Weighted Pipeline Valuation</p>
+                            <h3 className="text-2xl font-black text-gray-900 tracking-tight">Future Revenue</h3>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Expected revenue</p>
                         </div>
                         <div className="ml-auto flex items-center gap-6 text-xs font-black">
-                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-green-500" /><span className="text-gray-400">Weighted Forecast</span></div>
-                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-gray-200" /><span className="text-gray-400">Actual Value</span></div>
+                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-green-500" /><span className="text-gray-400">Predicted</span></div>
+                            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-sm bg-gray-200" /><span className="text-gray-400">Current</span></div>
                         </div>
                     </div>
                     <div className="h-80 w-full">
@@ -221,7 +221,7 @@ const Reports = () => {
                                     <Bar dataKey="weighted" fill="#22c55e" radius={[8, 8, 0, 0]} barSize={24} />
                                 </BarChart>
                             </ResponsiveContainer>
-                        ) : <div className="h-full flex items-center justify-center text-gray-300 font-bold italic uppercase tracking-widest text-xs">No pipeline data available.</div>}
+                        ) : <div className="h-full flex items-center justify-center text-gray-300 font-bold italic uppercase tracking-widest text-xs">No deals in the pipeline.</div>}
                     </div>
                 </div>
 

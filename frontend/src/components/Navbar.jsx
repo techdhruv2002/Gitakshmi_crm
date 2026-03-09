@@ -78,7 +78,7 @@ const Navbar = ({ toggleMobileSidebar }) => {
                         <FiSearch className="text-gray-400 shrink-0" />
                         <input
                             type="text"
-                            placeholder="Find records, leads, or deals..."
+                            placeholder="Search for leads, deals, or anything..."
                             className="bg-transparent border-none outline-none ml-3 text-sm w-full font-bold text-gray-700 placeholder-gray-400"
                             value={searchQuery}
                             onChange={(e) => handleSearch(e.target.value)}
@@ -90,8 +90,8 @@ const Navbar = ({ toggleMobileSidebar }) => {
                     {showResults && searchResults.length > 0 && (
                         <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-300">
                             <div className="p-4 border-b border-gray-50 flex items-center justify-between">
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Knowledge Pulse</span>
-                                <span className="text-[10px] font-black text-green-500 bg-green-50 px-2 py-0.5 rounded-full">{searchResults.length} Hits</span>
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Search Results</span>
+                                <span className="text-[10px] font-black text-green-500 bg-green-50 px-2 py-0.5 rounded-full">{searchResults.length} Found</span>
                             </div>
                             {searchResults.map((res, i) => (
                                 <button
@@ -127,8 +127,8 @@ const Navbar = ({ toggleMobileSidebar }) => {
                     {showNotifications && (
                         <div className="absolute right-0 mt-3 w-80 bg-white rounded-[2rem] shadow-2xl border border-gray-50 overflow-hidden z-50 animate-in zoom-in-95 duration-200">
                             <div className="px-6 py-5 bg-gray-50/50 border-b border-gray-50 flex items-center justify-between">
-                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Signal Intelligence</h3>
-                                <span className="text-[9px] font-black text-green-600 bg-green-100/50 px-2 py-0.5 rounded-md">{notifications.length} Pending</span>
+                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Alerts</h3>
+                                <span className="text-[9px] font-black text-green-600 bg-green-100/50 px-2 py-0.5 rounded-md">{notifications.length} New</span>
                             </div>
                             <div className="max-h-96 overflow-y-auto divide-y divide-gray-50">
                                 {notifications.length > 0 ? notifications.map((n) => (
@@ -148,7 +148,7 @@ const Navbar = ({ toggleMobileSidebar }) => {
                                 )) : (
                                     <div className="p-10 text-center flex flex-col items-center justify-center gap-3">
                                         <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-200"><FiBell size={24} /></div>
-                                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">Dormant Corridor</p>
+                                        <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">No new alerts</p>
                                     </div>
                                 )}
                             </div>

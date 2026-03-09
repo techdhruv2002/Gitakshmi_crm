@@ -17,7 +17,7 @@ const Automation = () => {
         setLoading(true);
         try {
             const res = await API.get("/automation");
-            setRules(res.data);
+            setRules(res.data?.data || (Array.isArray(res.data) ? res.data : []));
         } catch (err) {
             console.error(err);
         } finally {
@@ -47,7 +47,7 @@ const Automation = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Confirm deletion of this automation logic?")) {
+        if (window.confirm("Are you sure you want to delete this task?")) {
             try {
                 await API.delete(`/automation/${id}`);
                 fetchRules();
@@ -62,16 +62,16 @@ const Automation = () => {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                        <FiCpu className="text-green-500" /> Organizational Workflows
+                        <FiCpu className="text-green-500" /> Workflows
                     </h1>
-                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Engineer autonomous logic triggers across your sales hierarchy.</p>
+                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Set up automatic tasks for your sales team.</p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
                     className="flex items-center gap-3 px-6 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-105 active:scale-95 transition-all text-xs uppercase tracking-widest"
                 >
                     <FiPlus size={20} />
-                    Configure Automation
+                    Add New Task
                 </button>
             </div>
 
@@ -94,7 +94,7 @@ const Automation = () => {
                         </div>
 
                         <div className="space-y-3 pt-6 border-t border-gray-50">
-                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Execution Pipeline</p>
+                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-1">Tasks to Run</p>
                             {rule.actions.map((action, i) => (
                                 <div key={i} className="flex items-center gap-3 bg-gray-50/50 p-4 rounded-xl border border-gray-100 text-[11px] font-bold text-gray-600 group-hover:bg-white transition-colors">
                                     <FiCheckCircle className="text-green-500" />
@@ -110,8 +110,8 @@ const Automation = () => {
                         <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-gray-200 mb-6 shadow-sm border border-gray-100">
                             <FiCpu size={40} />
                         </div>
-                        <h3 className="text-xl font-black text-gray-400 uppercase tracking-[0.2em]">No Active Workflows</h3>
-                        <p className="text-gray-400 text-xs mt-3 max-w-xs font-bold leading-relaxed opacity-60">Initialize autonomous triggers to streamline organizational operations across all decentralized nodes.</p>
+                        <h3 className="text-xl font-black text-gray-400 uppercase tracking-[0.2em]">No automatic tasks</h3>
+                        <p className="text-gray-400 text-xs mt-3 max-w-xs font-bold leading-relaxed opacity-60">Create automatic tasks to make your work easier.</p>
                     </div>
                 )}
             </div>
@@ -121,23 +121,23 @@ const Automation = () => {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
                     <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100 text-left">
                         <div className="px-10 py-8 border-b border-gray-50 relative bg-gray-50/50">
-                            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Logic Configuration Matrix</h2>
-                            <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">Autonomous Trigger Definition</p>
+                            <h2 className="text-2xl font-black text-gray-900 tracking-tight">New Task Settings</h2>
+                            <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">Choose what starts the task</p>
                             <button onClick={() => setShowModal(false)} className="absolute top-8 right-10 p-2 text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">×</button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-10 space-y-8">
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Workflow Label</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Task Name</label>
                                 <input required className="w-full px-6 py-5 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-800 shadow-sm"
                                     value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Lead Inbound Alert" />
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">System Trigger</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">When this happens</label>
                                 <div className="relative">
                                     <select className="w-full px-6 py-5 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-700 shadow-sm appearance-none cursor-pointer"
                                         value={formData.trigger} onChange={e => setFormData({ ...formData, trigger: e.target.value })}>
-                                        <option value="lead_created">New Lead Inbound</option>
-                                        <option value="deal_stage_changed">Opportunity Evolution (Stage Change)</option>
+                                        <option value="lead_created">New Lead arrives</option>
+                                        <option value="deal_stage_changed">Deal moves to a new stage</option>
                                         <option value="meeting_scheduled">Meeting Scheduled</option>
                                     </select>
                                     <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
@@ -146,8 +146,8 @@ const Automation = () => {
                                 </div>
                             </div>
                             <div className="pt-8 flex gap-4 border-t border-gray-50">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-5 font-black text-gray-400 uppercase tracking-widest text-[11px] hover:bg-gray-50 rounded-2xl transition-all">Abort Action</button>
-                                <button type="submit" className="flex-[2] py-5 bg-green-500 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-2xl shadow-xl shadow-green-500/20 hover:bg-green-600 active:scale-95 transition-all">Initialize Workflow</button>
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-5 font-black text-gray-400 uppercase tracking-widest text-[11px] hover:bg-gray-50 rounded-2xl transition-all">Cancel</button>
+                                <button type="submit" className="flex-[2] py-5 bg-green-500 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-2xl shadow-xl shadow-green-500/20 hover:bg-green-600 active:scale-95 transition-all">Create Task</button>
                             </div>
                         </form>
                     </div>

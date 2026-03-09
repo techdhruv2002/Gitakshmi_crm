@@ -32,13 +32,13 @@ const ContactsPage = () => {
     }, [search]);
 
     const handleDelete = async (id) => {
-        if (window.confirm("Purging this contact will sever its links. Proceed?")) {
+        if (window.confirm("Are you sure you want to delete this contact?")) {
             try {
                 await API.delete(`/crm/contacts/${id}`);
-                toast.success("Personnel node purged.");
+                toast.success("Contact deleted.");
                 fetchData();
             } catch (err) {
-                toast.error("Failed to purge personnel.");
+                toast.error("Failed to delete contact.");
             }
         }
     };
@@ -52,15 +52,15 @@ const ContactsPage = () => {
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm transition-all hover:shadow-xl hover:shadow-green-500/5">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Personnel Nodes</h1>
-                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Individual Contact Architecture</p>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Contacts</h1>
+                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Manage your individual contacts here.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
                     <div className="relative group w-full lg:w-64">
                         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                         <input
                             type="text"
-                            placeholder="Locate personnel..."
+                            placeholder="Search contacts..."
                             className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -71,7 +71,7 @@ const ContactsPage = () => {
                         className="flex items-center gap-3 px-6 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-105 active:scale-95 transition-all text-xs uppercase tracking-widest"
                     >
                         <FiPlus size={20} />
-                        Register Person
+                        Add Contact
                     </button>
                 </div>
             </div>
@@ -81,10 +81,10 @@ const ContactsPage = () => {
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-gray-50/50">
                             <tr className="border-b border-gray-100">
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Primary Designation</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Corporate Link</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Comms Channels</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] text-right">Operations</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Name</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Company</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Contact Info</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -107,11 +107,11 @@ const ContactsPage = () => {
                                     <td className="px-8 py-5 space-y-2">
                                         <p className="text-sm font-bold text-gray-700 flex items-center gap-2.5">
                                             <FiMail className="text-gray-300 group-hover:text-green-500 transition-colors" size={14} />
-                                            {item.email || "No routing label"}
+                                            {item.email || "No email"}
                                         </p>
                                         <p className="text-[11px] font-black text-gray-400 flex items-center gap-2.5">
                                             <FiPhone className="text-gray-300 group-hover:text-green-500 transition-colors" size={14} />
-                                            {item.phone || "No terminal link"}
+                                            {item.phone || "No phone"}
                                         </p>
                                     </td>
                                     <td className="px-8 py-5 text-right">
@@ -119,14 +119,14 @@ const ContactsPage = () => {
                                             <button
                                                 onClick={() => navigate(getFormPath(item._id))}
                                                 className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all hover:scale-110 active:scale-95"
-                                                title="Refine Person"
+                                                title="Edit"
                                             >
                                                 <FiEdit2 size={16} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(item._id)}
                                                 className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all hover:scale-110 active:scale-95"
-                                                title="Purge Person"
+                                                title="Delete"
                                             >
                                                 <FiTrash2 size={16} />
                                             </button>
@@ -142,7 +142,7 @@ const ContactsPage = () => {
                         <div className="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center text-gray-200 text-3xl mb-6 shadow-inner ring-4 ring-gray-50/50">
                             <FiUser />
                         </div>
-                        <p className="text-gray-300 font-black uppercase tracking-[0.2em] italic text-xs">No personnel nodes detected.</p>
+                        <p className="text-gray-300 font-black uppercase tracking-[0.2em] italic text-xs">No contacts found.</p>
                     </div>
                 )}
             </div>

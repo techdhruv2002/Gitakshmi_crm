@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const crmController = require("../controllers/crmController");
-const authMiddleware = require("../middleware/authMiddleware");
+const auth = require("../middleware/auth");
+const checkCompanyAccess = require("../middleware/checkCompanyAccess");
 
-router.use(authMiddleware);
+router.use(auth, checkCompanyAccess);
 
+// All CRM routes should be restricted to own company data
 // Customer Routes
 router.post("/customers", crmController.createCustomer);
 router.get("/customers", crmController.getCustomers);

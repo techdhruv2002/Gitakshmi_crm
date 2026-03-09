@@ -16,9 +16,12 @@ const NotesSection = ({ leadId, customerId, dealId, contactId }) => {
             if (contactId) url += `contactId=${contactId}&`;
 
             const res = await API.get(url);
-            setNotes(res.data);
+            // Robust check for array data
+            const rawData = res.data?.data || res.data;
+            setNotes(Array.isArray(rawData) ? rawData : []);
         } catch (err) {
             console.error("Notes fetch error:", err);
+            setNotes([]); // Fallback to empty array
         } finally {
             setLoading(false);
         }
@@ -58,16 +61,16 @@ const NotesSection = ({ leadId, customerId, dealId, contactId }) => {
         <div className="space-y-6">
             <h3 className="text-xl font-black text-gray-800 tracking-tight flex items-center gap-3">
                 <FiFileText className="text-green-500" />
-                Internal Intelligence
+                Internal Notes
             </h3>
 
             {/* Form */}
             <form onSubmit={handleAddNote} className="space-y-5 bg-gray-50/50 p-6 rounded-[2.5rem] border border-gray-100 shadow-inner">
                 <div className="space-y-3">
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Canonical Label</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Title</label>
                     <input
                         type="text"
-                        placeholder="Brief objective..."
+                        placeholder="Enter title..."
                         className="w-full px-5 py-4 bg-white rounded-2xl border border-transparent outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 font-bold text-sm text-gray-700 placeholder:text-gray-300 shadow-sm transition-all"
                         value={newNote.title}
                         required
@@ -75,21 +78,21 @@ const NotesSection = ({ leadId, customerId, dealId, contactId }) => {
                     />
                 </div>
                 <div className="space-y-3">
-                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Metadata Content</label>
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Note Content</label>
                     <textarea
-                        placeholder="Detailed observations..."
+                        placeholder="Enter Note..."
                         className="w-full px-5 py-4 bg-white rounded-[2rem] border border-transparent outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 font-medium text-sm text-gray-600 placeholder:text-gray-300 min-h-[120px] shadow-sm transition-all"
                         value={newNote.content}
                         onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
                     />
                 </div>
                 <button type="submit" className="w-full py-4.5 bg-green-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-green-600 transition-all shadow-xl shadow-green-500/20 active:scale-95">
-                    Log Intel Protocol
+                    Add Note
                 </button>
             </form>
 
             <div className="space-y-4">
-                {notes.map((note) => (
+                {Array.isArray(notes) && notes.map((note) => (
                     <div key={note._id} className="p-8 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm relative group overflow-hidden hover:shadow-xl transition-all">
                         <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onClick={() => handleDeleteNote(note._id)} className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shadow-sm bg-white border border-gray-50">
@@ -104,14 +107,14 @@ const NotesSection = ({ leadId, customerId, dealId, contactId }) => {
                         <div className="flex items-center gap-2 pt-6 border-t border-gray-50">
                             <FiFileText className="text-green-500/40" />
                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                                Timestamp Protocol: {new Date(note.createdAt).toLocaleDateString()} {new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                Date: {new Date(note.createdAt).toLocaleDateString()} {new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </p>
                         </div>
                     </div>
                 ))}
-                {notes.length === 0 && !loading && (
+                {(!notes || notes.length === 0) && !loading && (
                     <div className="p-16 text-center bg-gray-50/30 rounded-[3rem] border-2 border-dashed border-gray-200">
-                        <p className="text-gray-300 font-black uppercase tracking-[0.3em] text-[10px]">No encrypted logs found in current cluster.</p>
+                        <p className="text-gray-300 font-black uppercase tracking-[0.3em] text-[10px]">No notes found.</p>
                     </div>
                 )}
             </div>

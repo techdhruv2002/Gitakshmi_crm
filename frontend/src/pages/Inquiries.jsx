@@ -71,7 +71,7 @@ const InquiriesPage = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Permanently archive this inquiry from the database?")) return;
+        if (!window.confirm("Are you sure you want to delete this inquiry?")) return;
         try {
             await API.delete(`/inquiries/${id}`);
             toast.success("Inquiry archived.");
@@ -105,9 +105,9 @@ const InquiriesPage = () => {
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm transition-all hover:shadow-xl hover:shadow-green-500/5">
                 <div>
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tighter">Inbound Inquiries</h1>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tighter">New Inquiries</h1>
                     <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-2">
-                        Cross-channel acquisition logs for {stats.websites.length || "0"} origins
+                        From {stats.websites.length || "0"} sites
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -130,10 +130,10 @@ const InquiriesPage = () => {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
-                    { label: "Total Volume", val: stats.total, color: "text-gray-900", icon: <FiInbox /> },
-                    { label: "Open Signals", val: stats.open, color: "text-orange-500", icon: <FiClock /> },
-                    { label: "Converted Assets", val: stats.converted, color: "text-green-600", icon: <FiArrowRight /> },
-                    { label: "Ignored Noise", val: stats.ignored, color: "text-gray-400", icon: <FiEyeOff /> }
+                    { label: "Total", val: stats.total, color: "text-gray-900", icon: <FiInbox /> },
+                    { label: "Open", val: stats.open, color: "text-orange-500", icon: <FiClock /> },
+                    { label: "Converted", val: stats.converted, color: "text-green-600", icon: <FiArrowRight /> },
+                    { label: "Ignored", val: stats.ignored, color: "text-gray-400", icon: <FiEyeOff /> }
                 ].map(s => (
                     <div key={s.label} className="bg-white p-6 rounded-[1.8rem] border border-gray-100 shadow-sm group hover:scale-[1.02] transition-all duration-300">
                         <div className="flex items-center justify-between">
@@ -153,7 +153,7 @@ const InquiriesPage = () => {
                         <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" size={18} />
                         <input
                             type="text"
-                            placeholder="De-hash by name, contact, or content..."
+                            placeholder="Search by name, email, or message..."
                             className="w-full pl-12 pr-6 py-4 bg-white border border-gray-200 rounded-[1.2rem] outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 transition-all font-bold text-gray-700 placeholder-gray-400"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -163,19 +163,19 @@ const InquiriesPage = () => {
 
                 {/* Table Header */}
                 <div className="hidden lg:grid grid-cols-12 gap-4 px-8 py-4 bg-gray-50/50 border-b border-gray-50">
-                    <div className="col-span-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Signal / Prospect</div>
-                    <div className="col-span-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Origin / Platform</div>
-                    <div className="col-span-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Requirement Packet</div>
+                    <div className="col-span-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">From</div>
+                    <div className="col-span-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Source</div>
+                    <div className="col-span-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">Message</div>
                     <div className="col-span-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</div>
                     <div className="col-span-1 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Date</div>
-                    <div className="col-span-2 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right px-4">Tactical</div>
+                    <div className="col-span-2 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right px-4">Actions</div>
                 </div>
 
                 {/* Rows */}
                 {loading ? (
                     <div className="py-32 flex flex-col items-center gap-4 bg-white/50 animate-pulse">
                         <div className="w-14 h-14 border-[6px] border-green-50 border-t-green-500 rounded-full animate-spin"></div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Mapping Intelligence logs...</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Loading...</p>
                     </div>
                 ) : filtered.length > 0 ? (
                     <div className="divide-y divide-gray-50">
@@ -203,10 +203,10 @@ const InquiriesPage = () => {
                                 <div className="lg:col-span-2 space-y-2">
                                     <div className="flex items-center gap-2 text-blue-500 text-[11px] font-black">
                                         <FiGlobe className="shrink-0" />
-                                        <span className="truncate max-w-[140px]">{item.website || "No Direct URL"}</span>
+                                        <span className="truncate max-w-[140px]">{item.website || "No URL"}</span>
                                     </div>
                                     <span className="inline-block px-3 py-1 bg-gray-100/80 text-gray-500 text-[9px] font-black uppercase tracking-widest rounded-lg border border-gray-200">
-                                        {item.source || "Organic Signal"}
+                                        {item.source || "Organic"}
                                     </span>
                                 </div>
 
@@ -214,7 +214,7 @@ const InquiriesPage = () => {
                                 <div className="lg:col-span-3">
                                     <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-xl">
                                         <p className="text-gray-500 text-xs font-bold italic line-clamp-2 leading-relaxed">
-                                            "{item.message || "No contextual packet attached."}"
+                                            "{item.message || "No message attached."}"
                                         </p>
                                     </div>
                                 </div>
@@ -247,7 +247,7 @@ const InquiriesPage = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => updateStatus(item._id, "Ignored")}
-                                                    title="Mark as Noise"
+                                                    title="Ignore"
                                                     className="p-2.5 bg-gray-50 text-gray-400 border border-gray-200 rounded-xl hover:bg-orange-50 hover:text-orange-500 hover:border-orange-200 transition-all"
                                                 >
                                                     <FiEyeOff size={16} />
@@ -264,7 +264,7 @@ const InquiriesPage = () => {
                                         )}
                                         {item.status === "Converted" && (
                                             <div className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-50 text-green-700 font-black rounded-xl border border-green-100 text-[10px] uppercase tracking-widest opacity-60">
-                                                Finalized
+                                                Converted
                                             </div>
                                         )}
                                         <button
@@ -287,8 +287,8 @@ const InquiriesPage = () => {
                             </div>
                         </div>
                         <div>
-                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Silence Detected</p>
-                            <p className="text-gray-300 text-xs font-bold mt-1">No inquiries match your current visibility parameters.</p>
+                            <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">No inquiries found</p>
+                            <p className="text-gray-300 text-xs font-bold mt-1">No inquiries match your search.</p>
                         </div>
                     </div>
                 )}

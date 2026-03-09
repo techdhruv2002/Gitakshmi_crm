@@ -1,16 +1,17 @@
-// ProtectedRoute — kept for backward compatibility.
-// New code should use SessionGuard + RoleGuard instead.
 import { Navigate } from "react-router-dom";
+import tokenManager from "../utils/tokenManager";
 
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  let user = null;
-  try { user = JSON.parse(localStorage.getItem("user") || "null"); } catch { }
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const path = window.location.pathname;
+  const token = tokenManager.getTokenByPath(path);
 
-  if (!token || !user) {
-    localStorage.clear();
-    return <Navigate to="/" replace />;
+  // We can also store/get user data here if needed, but for now we check token
+  // A better way is using a RoleGuard component.
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
   }
+
   return children;
 };
 

@@ -8,7 +8,7 @@ exports.createMasterData = async (req, res) => {
             companyId: req.user.companyId,
             createdBy: req.user.id
         });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -41,6 +41,7 @@ exports.getMasterData = async (req, res) => {
         const total = await MasterData.countDocuments(query);
 
         res.json({
+            success: true,
             data,
             total,
             pages: Math.ceil(total / limit),
@@ -59,7 +60,7 @@ exports.updateMasterData = async (req, res) => {
             req.body,
             { new: true }
         );
-        res.json(updated);
+        res.json({ success: true, data: updated });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -72,7 +73,7 @@ exports.deleteMasterData = async (req, res) => {
             _id: req.params.id,
             companyId: req.user.companyId
         });
-        res.json({ message: "Master data deleted" });
+        res.json({ success: true, message: "Master data deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -89,7 +90,7 @@ exports.reorderMasterData = async (req, res) => {
             }
         }));
         await MasterData.bulkWrite(operations);
-        res.json({ message: "Order updated" });
+        res.json({ success: true, message: "Order updated" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

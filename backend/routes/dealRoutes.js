@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const authMiddleware = require("../middleware/authMiddleware");
+const auth = require("../middleware/auth");
+const requireRole = require("../middleware/requireRole");
+const checkCompanyAccess = require("../middleware/checkCompanyAccess");
 const {
   createDeal,
   getDeals,
@@ -10,10 +12,12 @@ const {
   deleteDeal
 } = require("../controllers/dealController");
 
-router.post("/", authMiddleware, createDeal);
-router.get("/", authMiddleware, getDeals);
-router.put("/:id", authMiddleware, updateDeal);
-router.delete("/:id", authMiddleware, deleteDeal);
-router.put("/:id/stage", authMiddleware, updateStage);
+router.use(auth, checkCompanyAccess);
+
+router.post("/", requireRole("company_admin", "branch_manager", "sales"), createDeal);
+router.get("/", requireRole("company_admin", "branch_manager", "sales", "super_admin"), getDeals);
+router.put("/:id", requireRole("company_admin", "branch_manager", "sales"), updateDeal);
+router.delete("/:id", requireRole("company_admin", "super_admin"), deleteDeal);
+router.put("/:id/stage", requireRole("company_admin", "branch_manager", "sales"), updateStage);
 
 module.exports = router;

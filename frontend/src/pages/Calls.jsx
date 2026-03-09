@@ -14,7 +14,7 @@ const CallsPage = () => {
         setLoading(true);
         try {
             const res = await API.get("/crm/calls");
-            setData(res.data);
+            setData(res.data?.data || (Array.isArray(res.data) ? res.data : []));
         } catch (err) {
             console.error(err);
         } finally {
@@ -64,15 +64,15 @@ const CallsPage = () => {
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Communication Log</h1>
-                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Track all customer calls and telephonic engagements.</p>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Call Logs</h1>
+                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Keep a record of your calls with customers.</p>
                 </div>
                 <button
                     onClick={() => { setEditingId(null); setFormData({ title: "", description: "", status: "Scheduled", time: "" }); setShowModal(true); }}
                     className="flex items-center gap-3 px-6 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-105 active:scale-95 transition-all text-xs uppercase tracking-widest"
                 >
                     <FiPlus size={20} />
-                    Log Call
+                    Add Call
                 </button>
             </div>
 
@@ -80,7 +80,7 @@ const CallsPage = () => {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-gray-50 border-b border-gray-100">
                         <tr>
-                            <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Call Title</th>
+                            <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</th>
                             <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Date & Time</th>
                             <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
                             <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
@@ -108,7 +108,7 @@ const CallsPage = () => {
                                 <td className="px-6 py-5 text-right space-x-1">
                                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button onClick={() => { setEditingId(item._id); setFormData({ title: item.title, description: item.description, status: item.status, time: item.time ? new Date(item.time).toISOString().slice(0, 16) : "" }); setShowModal(true); }} className="p-2.5 bg-white border border-gray-100 text-gray-400 hover:text-green-600 hover:border-green-100 hover:bg-green-50 rounded-xl transition-all shadow-sm"><FiEdit2 size={16} /></button>
-                                        <button onClick={async () => { if (window.confirm("Remove call log?")) { await API.delete(`/crm/calls/${item._id}`); fetchData(); } }} className="p-2.5 bg-white border border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 rounded-xl transition-all shadow-sm"><FiTrash2 size={16} /></button>
+                                        <button onClick={async () => { if (window.confirm("Are you sure you want to delete this call log?")) { await API.delete(`/crm/calls/${item._id}`); fetchData(); } }} className="p-2.5 bg-white border border-gray-100 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 rounded-xl transition-all shadow-sm"><FiTrash2 size={16} /></button>
                                     </div>
                                 </td>
                             </tr>
@@ -118,7 +118,7 @@ const CallsPage = () => {
                 {data.length === 0 && !loading && (
                     <div className="p-20 text-center flex flex-col items-center justify-center">
                         <div className="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center text-gray-300 mb-6 shadow-inner"><FiPhone size={32} /></div>
-                        <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[11px]">No call engagements found</p>
+                        <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[11px]">No call logs found</p>
                     </div>
                 )}
             </div>
@@ -128,21 +128,21 @@ const CallsPage = () => {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
                     <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                         <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
-                            <h3 className="text-xl font-black text-gray-900">{editingId ? "Update Engagement" : "Log New Call"}</h3>
+                            <h3 className="text-xl font-black text-gray-900">{editingId ? "Edit Call" : "Add Call"}</h3>
                             <button onClick={() => setShowModal(false)} className="p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-xl transition-colors"><FiUser size={20} /></button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-8 space-y-6">
                             <div className="space-y-2.5">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Engagement Title</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Call Title</label>
                                 <input required placeholder="E.g., Intro Call with Acme Corp..." className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
                             </div>
                             <div className="space-y-2.5">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Engagement Summary</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Call Summary</label>
                                 <textarea placeholder="Discussion points, action items, etc..." className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm resize-none" rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
                             </div>
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2.5">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Current Status</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Status</label>
                                     <select className="w-full pl-5 pr-10 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm tracking-wide cursor-pointer appearance-none" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
                                         <option value="Scheduled">Scheduled</option>
                                         <option value="In Progress">In Progress</option>
@@ -157,7 +157,7 @@ const CallsPage = () => {
                             </div>
                             <div className="pt-6 flex gap-4 border-t border-gray-50">
                                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 font-black text-[11px] uppercase tracking-widest text-gray-500 hover:bg-gray-100 rounded-xl transition-all">Cancel</button>
-                                <button type="submit" className="flex-1 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-105 active:scale-95 transition-all text-[11px] uppercase tracking-widest">{editingId ? 'Update Log' : 'Save Engagement'}</button>
+                                <button type="submit" className="flex-1 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-105 active:scale-95 transition-all text-[11px] uppercase tracking-widest">{editingId ? 'Save Changes' : 'Save Call'}</button>
                             </div>
                         </form>
                     </div>

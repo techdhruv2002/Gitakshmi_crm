@@ -7,8 +7,7 @@ import FieldError from "../../components/FieldError";
 import { useToast } from "../../context/ToastContext";
 import { getCurrentUser } from "../../context/AuthContext";
 
-const LEAD_STATUSES = ["new", "contacted", "qualified", "proposal", "closed"];
-const LEAD_SOURCES = ["Website", "Referral", "Cold Call", "Social Media", "Email Campaign", "Walk-in", "Other"];
+const LEAD_STATUSES = ["New", "Contacted", "Qualified", "Proposal", "Closed"];
 
 export default function LeadFormPage() {
     const { id } = useParams();
@@ -23,9 +22,10 @@ export default function LeadFormPage() {
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(isEdit);
     const [users, setUsers] = useState([]);
+    const [leadSources, setLeadSources] = useState([]);
     const [formData, setFormData] = useState({
         name: "", email: "", phone: "", company: "", source: "Website",
-        status: "new", assignedTo: "", notes: ""
+        sourceId: "", status: "New", assignedTo: "", notes: ""
     });
 
     const schema = {
@@ -35,13 +35,16 @@ export default function LeadFormPage() {
     };
     const { errors, validate, clearError } = useFormValidation(schema);
 
-    // Fetch users for assignment dropdown
+    // Fetch users AND lead sources
     useEffect(() => {
         (async () => {
             try {
                 const url = isSuperAdmin ? "/super-admin/users" : "/users";
                 const res = await API.get(url);
-                setUsers(Array.isArray(res.data) ? res.data : []);
+                setUsers(res.data?.data || (Array.isArray(res.data) ? res.data : []));
+
+                const resSources = await API.get("/lead-sources");
+                setLeadSources(resSources.data?.data || []);
             } catch { /* silent */ }
         })();
     }, []);
@@ -51,8 +54,8 @@ export default function LeadFormPage() {
         if (!isEdit) return;
         (async () => {
             try {
-                const res = await API.get(`${apiBase}?limit=999`);
-                const all = Array.isArray(res.data) ? res.data : [];
+                const resData = res.data?.data || res.data;
+                const all = Array.isArray(resData) ? resData : [];
                 const lead = all.find(l => l._id === id);
                 if (lead) {
                     setFormData({
@@ -61,7 +64,8 @@ export default function LeadFormPage() {
                         phone: lead.phone || "",
                         company: lead.company || lead.companyName || "",
                         source: lead.source || "Website",
-                        status: lead.status || "new",
+                        sourceId: lead.sourceId?._id || lead.sourceId || "",
+                        status: lead.status || "New",
                         assignedTo: lead.assignedTo?._id || lead.assignedTo || "",
                         notes: lead.notes || ""
                     });
@@ -192,9 +196,10 @@ export default function LeadFormPage() {
                         {/* Source */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Source</label>
-                            <select name="source" className={inputCls("source").replace("pl-12", "pl-4")}
-                                value={formData.source} onChange={handleChange}>
-                                {LEAD_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
+                            <select name="sourceId" className={inputCls("sourceId").replace("pl-12", "pl-4")}
+                                value={formData.sourceId} onChange={handleChange}>
+                                <option value="">Select Source</option>
+                                {leadSources.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
                             </select>
                         </div>
 

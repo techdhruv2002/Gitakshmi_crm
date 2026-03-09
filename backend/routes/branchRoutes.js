@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-const authMiddleware = require("../middleware/authMiddleware");
+const auth = require("../middleware/auth");
+const requireRole = require("../middleware/requireRole");
+const checkCompanyAccess = require("../middleware/checkCompanyAccess");
 const { createBranch, getBranches } = require("../controllers/branchController");
 
-router.post("/", authMiddleware, createBranch);
-router.get("/", authMiddleware, getBranches);
+router.post("/", auth, requireRole("super_admin", "company_admin"), checkCompanyAccess, createBranch);
+router.get("/", auth, requireRole("super_admin", "company_admin", "branch_manager"), checkCompanyAccess, getBranches);
 
 module.exports = router;

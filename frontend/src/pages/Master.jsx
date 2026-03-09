@@ -29,7 +29,7 @@ const MasterDataPage = () => {
         setLoading(true);
         try {
             const res = await API.get(`/master?type=${activeType}&search=${search}`);
-            setData(res.data.data);
+            setData(res.data?.data || res.data);
         } catch (err) {
             console.error(err);
         } finally {
@@ -74,22 +74,22 @@ const MasterDataPage = () => {
             {/* Dynamic Header */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Master Configuration</h1>
-                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Coordinate CRM system parameters and global metadata.</p>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Master Data</h1>
+                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Manage your system lists and options.</p>
                 </div>
                 <button
                     onClick={() => { setEditingId(null); setFormData({ name: "", description: "", status: "active" }); setShowModal(true); }}
                     className="flex items-center gap-3 px-6 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-[1.02] active:scale-95 transition-all text-xs uppercase tracking-widest"
                 >
                     <FiPlus size={20} />
-                    Deploy Resource
+                    Add New
                 </button>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
                 {/* Type Selection Terminal */}
                 <div className="xl:col-span-1 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm space-y-1.5 h-fit">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4 py-2 opacity-50">Cluster Type</p>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4 py-2 opacity-50">Lists</p>
                     {types.map(t => (
                         <button
                             key={t.id}
@@ -107,7 +107,7 @@ const MasterDataPage = () => {
                         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                         <input
                             type="text"
-                            placeholder={`Locate ${activeType.replace("_", " ")} nodes...`}
+                            placeholder={`Search ${activeType.replace("_", " ")}...`}
                             className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 transition-all font-bold text-gray-700 shadow-sm"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -119,10 +119,10 @@ const MasterDataPage = () => {
                             <table className="w-full text-left border-collapse">
                                 <thead className="bg-gray-50/50">
                                     <tr className="border-b border-gray-100">
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Resource Label</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Metadata Description</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Operational Status</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Operations</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Name</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Description</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Status</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
@@ -153,7 +153,7 @@ const MasterDataPage = () => {
                                 <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-200 text-2xl mx-auto mb-6">
                                     <FiMove />
                                 </div>
-                                <p className="text-gray-300 font-black uppercase tracking-widest italic text-xs">No active nodes in this sector.</p>
+                                <p className="text-gray-300 font-black uppercase tracking-widest italic text-xs">No items found.</p>
                             </div>
                         )}
                     </div>
@@ -167,45 +167,45 @@ const MasterDataPage = () => {
                         <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
                             <div>
                                 <h3 className="text-xl font-black text-gray-900 tracking-tight">{editingId ? "Edit" : "New"} {activeType.replace("_", " ")}</h3>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Resource Configuration</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Item Details</p>
                             </div>
                             <button onClick={() => setShowModal(false)} className="p-2 text-gray-300 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all font-black">×</button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-8 space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Canonical Name</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Name</label>
                                 <input
                                     required
                                     className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-900 shadow-sm"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    placeholder="Enter identifier..."
+                                    placeholder="Enter name..."
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Metadata Definition</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Description</label>
                                 <textarea
                                     className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 shadow-sm"
                                     rows="3"
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    placeholder="Define the purpose of this resource..."
+                                    placeholder="What is this for?"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Operational State</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Status</label>
                                 <select
                                     className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-900 shadow-sm appearance-none cursor-pointer"
                                     value={formData.status}
                                     onChange={e => setFormData({ ...formData, status: e.target.value })}
                                 >
-                                    <option value="active">Active Protocol</option>
-                                    <option value="inactive">Suspended</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
                                 </select>
                             </div>
                             <div className="pt-6 flex gap-4 border-t border-gray-50">
-                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 font-black text-gray-400 uppercase tracking-widest text-[11px] hover:bg-gray-50 rounded-2xl transition-all">Abort</button>
-                                <button type="submit" className="flex-[2] py-4 bg-green-500 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-2xl shadow-xl shadow-green-500/20 hover:bg-green-600 active:scale-95 transition-all">Deploy Changes</button>
+                                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-4 font-black text-gray-400 uppercase tracking-widest text-[11px] hover:bg-gray-50 rounded-2xl transition-all">Cancel</button>
+                                <button type="submit" className="flex-[2] py-4 bg-green-500 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-2xl shadow-xl shadow-green-500/20 hover:bg-green-600 active:scale-95 transition-all">Save Changes</button>
                             </div>
                         </form>
                     </div>

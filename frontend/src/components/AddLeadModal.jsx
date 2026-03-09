@@ -64,10 +64,10 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                 <div className="px-8 py-6 bg-gradient-to-r from-green-50 to-white flex items-center justify-between border-b border-gray-50">
                     <div>
                         <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-                            {editingData ? "Refine Lead Profile" : "Initialize Lead Record"}
+                            {editingData ? "Edit Lead" : "Add Lead"}
                         </h2>
                         <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mt-1">
-                            {editingData ? "Market Asset Modernization" : "Strategic Acquisition Entry"}
+                            {editingData ? "Update lead details" : "Create a new lead"}
                         </p>
                     </div>
                     <button onClick={onClose} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
@@ -79,7 +79,7 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {/* Name */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Prospect Identity *</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Lead Name *</label>
                             <div className="relative group">
                                 <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input
@@ -96,14 +96,14 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                         {/* Email */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Communication Terminal (Email)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Email</label>
                             <div className="relative group">
                                 <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input
                                     name="email"
                                     type="email"
                                     className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 transition-all font-bold text-gray-700 text-sm"
-                                    placeholder="prospect@network.io"
+                                    placeholder="email@example.com"
                                     value={formData.email}
                                     onChange={handleChange}
                                 />
@@ -112,7 +112,7 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                         {/* Phone */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Direct Dial Access</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Phone</label>
                             <div className="relative group">
                                 <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input
@@ -128,14 +128,14 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                         {/* Company */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Organizational Entity</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Company</label>
                             <div className="relative group">
                                 <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input
                                     name="companyName"
                                     type="text"
                                     className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 transition-all font-bold text-gray-700 text-sm"
-                                    placeholder="Entity Name Ltd."
+                                    placeholder="Company Name"
                                     value={formData.companyName}
                                     onChange={handleChange}
                                 />
@@ -144,7 +144,7 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                         {/* Status */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Pipeline Phase</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Status</label>
                             <div className="relative group">
                                 <FiFlag className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors z-10" />
                                 <select
@@ -153,18 +153,18 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                     value={formData.status}
                                     onChange={handleChange}
                                 >
-                                    <option value="new">New Inbound</option>
-                                    <option value="contacted">Phase: Contacted</option>
-                                    <option value="qualified">Phase: Qualified</option>
-                                    <option value="proposal">Phase: Proposal</option>
-                                    <option value="closed">Phase: Archive/Closed</option>
+                                    <option value="new">New</option>
+                                    <option value="contacted">Contacted</option>
+                                    <option value="qualified">Qualified</option>
+                                    <option value="proposal">Proposal</option>
+                                    <option value="closed">Closed</option>
                                 </select>
                             </div>
                         </div>
 
                         {/* Priority */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Impact Priority</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Priority</label>
                             <div className="relative group">
                                 <FiTarget className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors z-10" />
                                 <select
@@ -173,16 +173,16 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                     value={formData.priority}
                                     onChange={handleChange}
                                 >
-                                    <option value="low">Low Impact</option>
-                                    <option value="medium">Medium Priority</option>
-                                    <option value="high">Critical / High</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
                                 </select>
                             </div>
                         </div>
 
                         {/* Value */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Estimated Asset Value (₹)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Value (₹)</label>
                             <div className="relative group">
                                 <FiTrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input
@@ -198,7 +198,7 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                         {/* Source */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Acquisition Source</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Source</label>
                             <div className="relative group">
                                 <FiGlobe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors z-10" />
                                 <select
@@ -207,11 +207,11 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                     value={formData.source}
                                     onChange={handleChange}
                                 >
-                                    <option value="Manual">Manual Entry</option>
-                                    <option value="Website">Global Website</option>
-                                    <option value="Referral">Network Referral</option>
-                                    <option value="Social Media">Social Intelligence</option>
-                                    <option value="Partner">Business Partner</option>
+                                    <option value="Manual">Manual</option>
+                                    <option value="Website">Website</option>
+                                    <option value="Referral">Referral</option>
+                                    <option value="Social Media">Social Media</option>
+                                    <option value="Partner">Partner</option>
                                 </select>
                             </div>
                         </div>
@@ -219,14 +219,14 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                     {/* Notes */}
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Intelligence Notes</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Notes</label>
                         <div className="relative group">
                             <FiMessageSquare className="absolute left-4 top-5 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                             <textarea
                                 name="notes"
                                 rows={3}
                                 className="w-full pl-11 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-3xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 transition-all font-bold text-gray-700 text-sm resize-none"
-                                placeholder="Additional intelligence data or contextual observations..."
+                                placeholder="Additional notes..."
                                 value={formData.notes}
                                 onChange={handleChange}
                             />
@@ -240,14 +240,14 @@ const AddLeadModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                             onClick={onClose}
                             className="flex-1 px-8 py-4 bg-gray-100 text-gray-500 font-black rounded-2xl hover:bg-gray-200 transition-all text-xs uppercase tracking-widest"
                         >
-                            Abort
+                            Cancel
                         </button>
                         <button
                             type="submit"
                             className="flex-[2] flex items-center justify-center gap-3 px-8 py-4 bg-green-500 text-white font-black rounded-2xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-[1.02] active:scale-95 transition-all text-xs uppercase tracking-widest"
                         >
                             <FiPlus size={18} />
-                            {editingData ? "Update Intelligence" : "Commit Record"}
+                            {editingData ? "Save Changes" : "Save Lead"}
                         </button>
                     </div>
                 </form>

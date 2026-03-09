@@ -2,6 +2,7 @@ const Inquiry = require("../models/Inquiry");
 const Lead = require("../models/Lead");
 const User = require("../models/User");
 const MasterData = require("../models/MasterData");
+const { assignLeadAutomatically, calculateLeadScore } = require("../utils/leadManagement");
 
 // ── CREATE INQUIRY (Company Admin manually creates) ──────────────────────────
 exports.createInquiry = async (req, res) => {
@@ -41,12 +42,23 @@ exports.createInquiry = async (req, res) => {
             companyName: req.body.companyName || "",
             message: req.body.message || "",
             source: req.body.source || "Manual",
+            sourceId: req.body.sourceId || null,
             website: req.body.website || "",
             status: "Open",
             companyId,
             branchId
         });
 
+        if (req.body.sourceId) {
+            const LeadSource = require("../models/LeadSource");
+            const sourceObj = await LeadSource.findById(req.body.sourceId);
+            if (sourceObj) {
+                inquiry.source = sourceObj.name;
+                await inquiry.save();
+            }
+        }
+
+        console.log("Inquiry created:", inquiry._id, "for company:", companyId);
         res.status(201).json({ success: true, data: inquiry });
     } catch (err) {
         console.error("Inquiry Creation Error:", err);
@@ -60,23 +72,27 @@ exports.createInquiry = async (req, res) => {
 // ── GET ALL INQUIRIES (RBAC filtered by role) ────────────────────────────────
 exports.getInquiries = async (req, res) => {
     try {
+        if (!req.user) {
+            return res.status(401).json({ success: false, message: "Unauthorized: Access denied" });
+        }
+
         let query = {};
 
-        if (req.user.role === "company_admin") {
-            // Company admin sees ALL inquiries for their company
+        if (req.user.role !== "super_admin") {
             query.companyId = req.user.companyId;
-        } else if (req.user.role === "branch_manager" || req.user.role === "sales") {
-            // Branch manager and sales see only their branch
-            query.companyId = req.user.companyId;
-            query.branchId = req.user.branchId;
+            if (req.user.role === "branch_manager" || req.user.role === "sales") {
+                query.branchId = req.user.branchId;
+            }
         }
 
         const inquiries = await Inquiry.find(query)
             .sort({ createdAt: -1 })
-            .populate("companyId", "name");
+            .populate("companyId", "name")
+            .populate("sourceId");
 
         res.json({ success: true, data: inquiries });
     } catch (err) {
+        console.error("GET INQUIRIES ERROR:", err);
         res.status(500).json({ success: false, message: err.message });
     }
 };
@@ -84,6 +100,13 @@ exports.getInquiries = async (req, res) => {
 // ── CONVERT INQUIRY → LEAD (with assignedTo) ─────────────────────────────────
 exports.convertInquiryToLead = async (req, res) => {
     try {
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+        const mongoose = require("mongoose");
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid Inquiry ID" });
+        }
+
         const inquiry = await Inquiry.findById(req.params.id);
         if (!inquiry) {
             return res.status(404).json({ success: false, message: "Inquiry not found" });
@@ -99,7 +122,7 @@ exports.convertInquiryToLead = async (req, res) => {
             type: "lead_status",
             name: "New"
         });
-        if (statusObj) defaultStatus = statusObj._id;
+        if (statusObj) defaultStatus = statusObj.name;
 
         let defaultSource = inquiry.source || "Website";
         const sourceObj = await MasterData.findOne({
@@ -107,10 +130,10 @@ exports.convertInquiryToLead = async (req, res) => {
             type: "lead_source",
             name: inquiry.source
         });
-        if (sourceObj) defaultSource = sourceObj._id;
+        if (sourceObj) defaultSource = sourceObj.name;
 
-        // ✅ assignedTo from body OR fallback to logged-in user
-        const assignedToId = req.body.assignedTo || req.user.id;
+        // ✅ assignedTo from body, support explicitly passing `null` for auto-assign
+        const assignedToId = req.body.hasOwnProperty("assignedTo") ? req.body.assignedTo : req.user.id;
 
         // Resolve branchId of the assigned user if not already present on inquiry
         let targetBranchId = inquiry.branchId || req.user.branchId || null;
@@ -127,13 +150,22 @@ exports.convertInquiryToLead = async (req, res) => {
             phone: inquiry.phone,
             companyName: inquiry.companyName || "",
             notes: inquiry.message,
-            source: defaultSource,
+            source: inquiry.source || defaultSource,
+            sourceId: inquiry.sourceId || null,
             status: defaultStatus,
             companyId: inquiry.companyId,
             branchId: targetBranchId,
             createdBy: req.user.id,
             assignedTo: assignedToId
         });
+
+        // Auto assignment if no one was explicitly assigned
+        if (!lead.assignedTo) {
+            await assignLeadAutomatically(lead._id, req.user.companyId, lead.branchId);
+        }
+
+        // Calculate AI Lead Score
+        await calculateLeadScore(lead._id);
 
         // Mark inquiry as Converted
         inquiry.status = "Converted";
@@ -143,19 +175,39 @@ exports.convertInquiryToLead = async (req, res) => {
             .populate("assignedTo", "name email role")
             .populate("createdBy", "name email");
 
+        // STEP 9 - NOTIFICATION TRIGGER: Inquiry/Lead Assigned
+        if (assignedToId) {
+            const { createNotification } = require("../utils/notificationService");
+            await createNotification({
+                userId: assignedToId,
+                companyId: lead.companyId,
+                title: "New Lead Assigned",
+                message: `You have been assigned a new lead from an inquiry: ${lead.name}`,
+                type: "info"
+            });
+        }
+
         res.json({
             success: true,
             message: "Inquiry converted to Lead successfully.",
-            lead: populated
+            data: populated
         });
     } catch (err) {
-        res.status(400).json({ success: false, message: err.message });
+        console.error("CONVERT INQUIRY ERROR:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
 // ── UPDATE INQUIRY STATUS (Open / Ignored) ────────────────────────────────────
 exports.updateInquiryStatus = async (req, res) => {
     try {
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+        const mongoose = require("mongoose");
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid Inquiry ID" });
+        }
+
         const inquiry = await Inquiry.findOneAndUpdate(
             { _id: req.params.id, companyId: req.user.companyId },
             { status: req.body.status },
@@ -166,19 +218,33 @@ exports.updateInquiryStatus = async (req, res) => {
         }
         res.json({ success: true, data: inquiry });
     } catch (err) {
-        res.status(400).json({ success: false, message: err.message });
+        console.error("UPDATE INQUIRY STATUS ERROR:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };
 
 // ── DELETE INQUIRY ────────────────────────────────────────────────────────────
 exports.deleteInquiry = async (req, res) => {
     try {
-        await Inquiry.findOneAndDelete({
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+        const mongoose = require("mongoose");
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid Inquiry ID" });
+        }
+
+        const deleted = await Inquiry.findOneAndDelete({
             _id: req.params.id,
             companyId: req.user.companyId  // ✅ safety — can only delete own company's inquiries
         });
+
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: "Inquiry not found or access denied." });
+        }
+
         res.json({ success: true, message: "Inquiry deleted." });
     } catch (err) {
-        res.status(400).json({ success: false, message: err.message });
+        console.error("DELETE INQUIRY ERROR:", err);
+        res.status(500).json({ success: false, message: err.message });
     }
 };

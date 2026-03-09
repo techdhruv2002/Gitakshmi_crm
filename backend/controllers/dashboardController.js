@@ -8,6 +8,8 @@ const Todo = require("../models/Todo");
 
 exports.getDashboardStats = async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
     const { companyId, branchId, role, id: userId } = req.user;
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -125,26 +127,92 @@ exports.getDashboardStats = async (req, res) => {
     }
 
     res.json({
-      totalLeads,
-      totalDeals,
-      totalCustomers,
-      totalContacts,
-      todayCalls,
-      todayMeetings,
-      todayTasks,
-      totalRevenue,
-      conversionRate,
-      dealsByStage,
-      recentActivities,
-      upcomingAgenda,
-      recentLeads,
-      recentDeals,
-      totalInquiries,
-      hotLeads
+      success: true,
+      data: {
+        totalLeads,
+        totalDeals,
+        totalCustomers,
+        totalContacts,
+        todayCalls,
+        todayMeetings,
+        todayTasks,
+        totalRevenue,
+        conversionRate,
+        dealsByStage,
+        recentActivities,
+        upcomingAgenda,
+        recentLeads,
+        recentDeals,
+        totalInquiries,
+        hotLeads
+      }
     });
 
   } catch (error) {
     console.error("Dashboard Stats Error:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ── GET DASHBOARD LEADS STATS ─────────────────────────────────────────────────
+exports.getLeadsStats = async (req, res) => {
+  try {
+    const { companyId, branchId, role, id: userId } = req.user;
+    let filter = { isDeleted: false, companyId };
+    if (role === "branch_manager" && branchId) filter.branchId = branchId;
+    else if (role === "sales") filter.assignedTo = userId;
+
+    const totalLeads = await Lead.countDocuments(filter);
+    const newLeads = await Lead.countDocuments({ ...filter, status: "New" });
+    const hotLeads = await Lead.countDocuments({ ...filter, priority: "high" });
+
+    res.json({ success: true, data: { totalLeads, newLeads, hotLeads } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ── GET DASHBOARD DEALS STATS ─────────────────────────────────────────────────
+exports.getDealsStats = async (req, res) => {
+  try {
+    const { companyId, branchId, role, id: userId } = req.user;
+    let filter = { companyId };
+    if (role === "branch_manager" && branchId) filter.branchId = branchId;
+    else if (role === "sales") filter.assignedTo = userId;
+
+    const totalDeals = await Deal.countDocuments(filter);
+    const dealsWon = await Deal.countDocuments({ ...filter, stage: { $in: ["Won", "Closed Won"] } });
+    const dealsLost = await Deal.countDocuments({ ...filter, stage: { $in: ["Lost", "Closed Lost"] } });
+
+    res.json({ success: true, data: { totalDeals, dealsWon, dealsLost } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ── GET DASHBOARD CONVERSION STATS ──────────────────────────────────────────────
+exports.getConversionStats = async (req, res) => {
+  try {
+    const { companyId, branchId, role, id: userId } = req.user;
+    let inquiryFilter = { companyId };
+    let leadFilter = { isDeleted: false, companyId };
+
+    if (role === "branch_manager" && branchId) {
+      inquiryFilter.branchId = branchId;
+      leadFilter.branchId = branchId;
+    } else if (role === "sales") {
+      inquiryFilter.branchId = branchId; // Sales can't easily filter by assignedTo on Inquiries yet
+      leadFilter.assignedTo = userId;
+    }
+
+    const InquiryConfig = require("../models/Inquiry");
+    const totalInquiries = await InquiryConfig.countDocuments(inquiryFilter);
+    const totalLeads = await Lead.countDocuments(leadFilter);
+
+    const conversionRate = totalInquiries > 0 ? ((totalLeads / totalInquiries) * 100).toFixed(1) : 0;
+
+    res.json({ success: true, data: { totalInquiries, totalLeads, conversionRate: parseFloat(conversionRate) } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

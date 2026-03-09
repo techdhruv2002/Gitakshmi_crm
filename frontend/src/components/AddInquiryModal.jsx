@@ -52,8 +52,8 @@ const AddInquiryModal = ({ isOpen, onClose, onSuccess }) => {
                 {/* Header */}
                 <div className="px-8 py-6 bg-gradient-to-r from-green-50 to-white flex items-center justify-between border-b border-gray-50">
                     <div>
-                        <h2 className="text-2xl font-black text-gray-900 tracking-tight">Register Inquiry</h2>
-                        <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mt-1">Manual Entry Protocol</p>
+                        <h2 className="text-2xl font-black text-gray-900 tracking-tight">Add Inquiry</h2>
+                        <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mt-1">Create a new inquiry</p>
                     </div>
                     <button onClick={onClose} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
                         <FiX size={24} />
@@ -133,7 +133,7 @@ const AddInquiryModal = ({ isOpen, onClose, onSuccess }) => {
 
                         {/* Source */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Source Pipeline</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Source</label>
                             <div className="relative group text-sm font-bold text-gray-700">
                                 <select
                                     className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 transition-all appearance-none cursor-pointer"
@@ -148,7 +148,7 @@ const AddInquiryModal = ({ isOpen, onClose, onSuccess }) => {
 
                         {/* Website */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Reference URL</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Website URL</label>
                             <div className="relative group">
                                 <FiGlobe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input
@@ -164,7 +164,7 @@ const AddInquiryModal = ({ isOpen, onClose, onSuccess }) => {
 
                     {/* Message */}
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Requirement Notes</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Message</label>
                         <div className="relative group">
                             <FiMessageSquare className="absolute left-4 top-5 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                             <textarea
@@ -184,7 +184,7 @@ const AddInquiryModal = ({ isOpen, onClose, onSuccess }) => {
                             onClick={onClose}
                             className="flex-1 px-8 py-4 bg-gray-100 text-gray-500 font-black rounded-2xl hover:bg-gray-200 transition-all text-xs uppercase tracking-widest"
                         >
-                            Abort
+                            Cancel
                         </button>
                         <button
                             type="submit"
@@ -196,7 +196,7 @@ const AddInquiryModal = ({ isOpen, onClose, onSuccess }) => {
                             ) : (
                                 <>
                                     <FiPlus size={18} />
-                                    Commit Inquiry
+                                    Save Inquiry
                                 </>
                             )}
                         </button>

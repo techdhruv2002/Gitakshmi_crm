@@ -35,7 +35,8 @@ function Leads() {
         setLoading(true);
         try {
             const res = await API.get(`${apiBase}?search=${search}&status=${statusFilter}`);
-            setLeads(Array.isArray(res.data) ? res.data : []);
+            const data = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+            setLeads(data);
         } catch {
             setLeads([]);
         } finally {
@@ -44,7 +45,7 @@ function Leads() {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Delete this lead permanently?")) return;
+        if (!window.confirm("Are you sure you want to delete this lead?")) return;
         try {
             await API.delete(`${apiBase}/${id}`);
             toast.success("Lead deleted.");
@@ -55,13 +56,13 @@ function Leads() {
     };
 
     const handleConvert = async (id) => {
-        if (!window.confirm("Convert this lead to a Customer + Deal?")) return;
+        if (!window.confirm("Do you want to turn this lead into a customer?")) return;
         try {
             await API.post(`/leads/${id}/convert`);
-            toast.success("Lead converted successfully! Customer and Deal created.");
+            toast.success("Lead turned into a customer!");
             fetchLeads();
         } catch (err) {
-            toast.error("Conversion failed: " + (err.response?.data?.message || err.message));
+            toast.error("Error: " + (err.response?.data?.message || err.message));
         }
     };
 
@@ -71,9 +72,9 @@ function Leads() {
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Leads Pipeline</h1>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">My Leads</h1>
                     <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-70">
-                        Manage and track your acquisition pipeline.
+                        Keep track of people interested in your business.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -94,7 +95,7 @@ function Leads() {
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
-                            <option value="">All Statuses</option>
+                            <option value="">All Leads</option>
                             <option value="new">New</option>
                             <option value="contacted">Contacted</option>
                             <option value="qualified">Qualified</option>
@@ -115,7 +116,7 @@ function Leads() {
             {loading ? (
                 <div className="h-[400px] bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center space-y-4 shadow-sm">
                     <div className="w-14 h-14 border-[6px] border-green-50 border-t-green-500 rounded-full animate-spin" />
-                    <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">Loading Leads...</p>
+                    <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">Loading...</p>
                 </div>
             ) : (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

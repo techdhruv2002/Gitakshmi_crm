@@ -19,9 +19,13 @@ const inquirySchema = new mongoose.Schema(
         message: {
             type: String
         },
-        source: {
+        source: { // Legacy Support
             type: String,
             default: "Other"
+        },
+        sourceId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "LeadSource"
         },
         website: {
             type: String,
@@ -43,5 +47,9 @@ const inquirySchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+inquirySchema.index({ companyId: 1 });
+inquirySchema.index({ email: 1 });
+inquirySchema.index({ phone: 1 });
 
 module.exports = mongoose.model("Inquiry", inquirySchema);

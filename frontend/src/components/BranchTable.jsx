@@ -8,9 +8,9 @@ const BranchTable = ({ branches, onEdit, onDelete }) => {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50/50 border-b border-gray-100">
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Branch Location</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Parent Identity</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Contact Metadata</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Branch</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Company</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Contact Info</th>
                             <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Actions</th>
                         </tr>
                     </thead>
@@ -30,7 +30,7 @@ const BranchTable = ({ branches, onEdit, onDelete }) => {
                                                 <span className="font-black text-gray-800 tracking-tight">{branch.name}</span>
                                                 <div className="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
                                                     <FiMapPin className="mr-1 shadow-xs" />
-                                                    {branch.address || "No precise location meta"}
+                                                    {branch.address || "No address"}
                                                 </div>
                                             </div>
                                         </div>
@@ -43,7 +43,7 @@ const BranchTable = ({ branches, onEdit, onDelete }) => {
                                     <td className="px-8 py-5">
                                         <div className="flex items-center text-gray-600 text-[11px] uppercase tracking-widest font-black">
                                             <FiPhone className="mr-2 text-gray-300 group-hover:text-green-500 transition-colors" />
-                                            {branch.phone || "No terminal phone"}
+                                            {branch.phone || "No phone"}
                                         </div>
                                     </td>
                                     <td className="px-8 py-5 text-right">
@@ -51,14 +51,14 @@ const BranchTable = ({ branches, onEdit, onDelete }) => {
                                             <button
                                                 onClick={() => onEdit(branch)}
                                                 className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all shadow-sm bg-white border border-transparent hover:border-green-100"
-                                                title="Edit Node"
+                                                title="Edit"
                                             >
                                                 <FiEdit2 size={16} />
                                             </button>
                                             <button
                                                 onClick={() => onDelete(branch._id)}
                                                 className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm bg-white border border-transparent hover:border-red-100"
-                                                title="Decommission Node"
+                                                title="Delete"
                                             >
                                                 <FiTrash2 size={16} />
                                             </button>
@@ -69,7 +69,7 @@ const BranchTable = ({ branches, onEdit, onDelete }) => {
                         ) : (
                             <tr>
                                 <td colSpan="4" className="px-8 py-24 text-center text-gray-300 font-black uppercase tracking-[0.2em] italic">
-                                    No decentralized nodes discovered.
+                                    No branches found.
                                 </td>
                             </tr>
                         )}

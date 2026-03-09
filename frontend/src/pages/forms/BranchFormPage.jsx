@@ -49,7 +49,8 @@ export default function BranchFormPage() {
         (async () => {
             try {
                 const res = await API.get(apiBase);
-                const all = Array.isArray(res.data) ? res.data : [];
+                const resData = res.data?.data || res.data;
+                const all = Array.isArray(resData) ? resData : [];
                 const branch = all.find(b => b._id === id);
                 if (branch) {
                     setFormData({

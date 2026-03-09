@@ -30,7 +30,8 @@ function Users() {
         setLoading(true);
         try {
             const res = await API.get(`${apiBase}?search=${search}`);
-            setUsers(Array.isArray(res.data) ? res.data : []);
+            const data = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+            setUsers(data);
         } catch (err) {
             console.error(err);
             setUsers([]);
@@ -40,10 +41,10 @@ function Users() {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Remove this user? Their data associations will be preserved.")) return;
+        if (!window.confirm("Are you sure you want to remove this user?")) return;
         try {
             await API.delete(`${apiBase}/${id}`);
-            toast.success("User removed successfully.");
+            toast.success("User deleted.");
             fetchUsers();
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to remove user.");
@@ -54,7 +55,7 @@ function Users() {
         try {
             const newStatus = user.status === "inactive" ? "active" : "inactive";
             await API.put(`${apiBase}/${user._id}`, { status: newStatus });
-            toast.success(`User ${newStatus === "active" ? "activated" : "deactivated"} successfully.`);
+            toast.success("User status updated.");
             fetchUsers();
         } catch (err) {
             toast.error("Failed to update user status.");
@@ -67,9 +68,9 @@ function Users() {
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">User Management</h1>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Team Members</h1>
                     <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">
-                        Provision and manage CRM user accounts.
+                        Manage your team and their accounts.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
@@ -96,7 +97,7 @@ function Users() {
             {loading ? (
                 <div className="h-[400px] bg-white rounded-[2rem] border border-gray-100 flex flex-col items-center justify-center space-y-4 shadow-sm">
                     <div className="w-12 h-12 border-[6px] border-green-50 border-t-green-500 rounded-full animate-spin" />
-                    <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Loading Users...</p>
+                    <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Loading...</p>
                 </div>
             ) : (
                 <UserTable

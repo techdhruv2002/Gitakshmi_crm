@@ -38,4 +38,8 @@ const contactSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+contactSchema.index({ companyId: 1 });
+contactSchema.index({ customerId: 1 });
+contactSchema.index({ email: 1, companyId: 1 });
+
 module.exports = mongoose.model("Contact", contactSchema);

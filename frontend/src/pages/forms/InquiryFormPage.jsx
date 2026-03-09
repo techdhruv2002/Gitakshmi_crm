@@ -10,7 +10,7 @@ import FieldError from "../../components/FieldError";
 import { useToast } from "../../context/ToastContext";
 import { getCurrentUser } from "../../context/AuthContext";
 
-const SOURCES = ["Manual", "Phone Call", "Walk-in", "Email", "Referral", "Social Media", "Website", "Other"];
+// SOURCES handled dynamically from backend
 
 export default function InquiryFormPage() {
     const navigate = useNavigate();
@@ -20,23 +20,27 @@ export default function InquiryFormPage() {
     const [loading, setLoading] = useState(false);
 
     const [branches, setBranches] = useState([]);
+    const [leadSources, setLeadSources] = useState([]);
     const [formData, setFormData] = useState({
         name: "", email: "", phone: "", companyName: "",
-        source: "Manual", website: "", message: "",
+        source: "Manual", sourceId: "", website: "", message: "",
         branchId: ""
     });
 
     useEffect(() => {
-        if (isCompanyAdmin) {
-            (async () => {
-                try {
+        (async () => {
+            try {
+                if (isCompanyAdmin) {
                     const res = await API.get("/branches");
-                    setBranches(Array.isArray(res.data) ? res.data : []);
-                } catch (err) {
-                    console.error("Failed to fetch branches:", err);
+                    const data = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+                    setBranches(data);
                 }
-            })();
-        }
+                const resSources = await API.get("/lead-sources");
+                setLeadSources(resSources.data?.data || []);
+            } catch (err) {
+                console.error("Failed to fetch data:", err);
+            }
+        })();
     }, [isCompanyAdmin]);
 
     const schema = {
@@ -55,16 +59,16 @@ export default function InquiryFormPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate(formData)) {
-            toast.warning("Please verify all data packets before committing.");
+            toast.warning("Please fix the errors before submitting.");
             return;
         }
         setLoading(true);
         try {
             await API.post("/inquiries", formData);
-            toast.success("Inquiry registered in the pipeline.");
+            toast.success("Inquiry created successfully.");
             navigate(-1);
         } catch (err) {
-            toast.error(err.response?.data?.message || "Inquiry registration failed.");
+            toast.error(err.response?.data?.message || "Failed to save inquiry.");
         } finally {
             setLoading(false);
         }
@@ -88,9 +92,9 @@ export default function InquiryFormPage() {
                         <FiInbox size={24} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Manual Signal Entry</h1>
+                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">Add Inquiry</h1>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
-                            Internal Acquisition Protocol
+                            Manual Entry
                         </p>
                     </div>
                 </div>
@@ -99,7 +103,7 @@ export default function InquiryFormPage() {
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
                     <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.25em] flex items-center gap-2">
-                        Prospect Identification
+                        Inquiry Details
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-1.5 md:col-span-2">
@@ -133,7 +137,7 @@ export default function InquiryFormPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Corporate Label</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Company Name</label>
                             <div className="relative group">
                                 <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input name="companyName" className={inputCls("companyName")} placeholder="Company Ltd..."
@@ -142,27 +146,28 @@ export default function InquiryFormPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Signal Source</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Source</label>
                             <div className="relative group font-black text-gray-700">
-                                <select name="source" className={inputCls("source").replace("pl-12", "pl-4")}
-                                    value={formData.source} onChange={handleChange}>
-                                    {SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
+                                <select name="sourceId" className={inputCls("sourceId").replace("pl-12", "pl-4")}
+                                    value={formData.sourceId} onChange={handleChange}>
+                                    <option value="">Select Source</option>
+                                    {leadSources.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
                                 </select>
                             </div>
                         </div>
 
                         <div className="space-y-1.5 md:col-span-2">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Requirement Notes</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Message</label>
                             <div className="relative group">
                                 <FiMessageSquare className="absolute left-4 top-4 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <textarea name="message" rows={3} className={inputCls("message") + " resize-none"}
-                                    placeholder="Analyze and record requirements..." value={formData.message} onChange={handleChange} />
+                                    placeholder="Enter message here..." value={formData.message} onChange={handleChange} />
                             </div>
                         </div>
 
                         {isCompanyAdmin && (
                             <div className="space-y-1.5 md:col-span-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest text-emerald-600">Route to Target Branch</label>
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest text-emerald-600">Assign to Branch</label>
                                 <div className="relative group">
                                     <FiLayers className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
                                     <select name="branchId" className={inputCls("branchId")}
@@ -181,14 +186,14 @@ export default function InquiryFormPage() {
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <button type="button" onClick={() => navigate(-1)}
                         className="flex-1 py-4 bg-gray-100 text-gray-600 font-black rounded-2xl hover:bg-gray-200 transition-all text-sm uppercase tracking-widest">
-                        Abort
+                        Cancel
                     </button>
                     <button type="submit" disabled={loading}
                         className="flex-[2] flex items-center justify-center gap-3 py-4 bg-green-600 text-white font-black rounded-2xl hover:bg-green-700 active:scale-95 transition-all text-sm uppercase tracking-widest shadow-xl shadow-green-500/20 disabled:opacity-50">
                         {loading ? (
                             <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                         ) : (
-                            <><FiSave size={18} /> Commit Entry</>
+                            <><FiSave size={18} /> Save Inquiry</>
                         )}
                     </button>
                 </div>

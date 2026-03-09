@@ -1,22 +1,28 @@
 import axios from "axios";
 import { API_BASE_URL } from "../config/api";
-import { getSessionKeyForPath, readSession } from "../context/AuthContext";
+import { tokenManager } from "../utils/tokenManager";
 
 const API = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// ── Attach JWT from path-isolated session ─────────────────────────────────────
+// ── Prevent Stale Cache (Step 9) ──────────────────────────────────────────────
+API.defaults.headers.common["Cache-Control"] = "no-cache";
+API.defaults.headers.common["Pragma"] = "no-cache";
+API.defaults.headers.common["Expires"] = "0";
+
+// ── Attach JWT from panel-isolated storage ────────────────────────────────────
 API.interceptors.request.use((req) => {
-  const key = getSessionKeyForPath(window.location.pathname);
-  const session = readSession(key);
-  if (session?.token) {
-    req.headers.Authorization = `Bearer ${session.token}`;
+  const path = window.location.pathname;
+  const token = tokenManager.getTokenByPath(path);
+
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
   }
   return req;
 });
 
-// ── Global 401 handler — clears only the current panel's session ──────────────
+// ── Global 401 handler — clears only the current panel's token ──────────────
 API.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -26,9 +32,17 @@ API.interceptors.response.use(
       const isPublicPath = path === "/" || path === "/login";
 
       if (!isLoginRequest && !isPublicPath) {
-        const key = getSessionKeyForPath(path);
-        if (key) localStorage.removeItem(key);
-        window.location.replace("/login");
+        // Only redirect if absolutely no token is found in ANY panel
+        const hasAnyToken =
+          localStorage.getItem("superAdminToken") ||
+          localStorage.getItem("companyToken") ||
+          localStorage.getItem("branchToken") ||
+          localStorage.getItem("salesToken");
+
+        if (!hasAnyToken) {
+          tokenManager.clearTokenByPath(path);
+          window.location.replace("/login");
+        }
       }
     }
     return Promise.reject(err);

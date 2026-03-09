@@ -7,11 +7,11 @@ const LeadTable = ({ leads, onEdit, onDelete, onConvert, onView, onAssign }) => 
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50/50 border-b border-gray-100">
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Prospect Intelligence</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Communication Link</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Ownership</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Phase</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] text-right">Operations</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Lead</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Contact</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Assigned To</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Status</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -30,7 +30,7 @@ const LeadTable = ({ leads, onEdit, onDelete, onConvert, onView, onAssign }) => 
                                                 <span className="font-black text-gray-900 tracking-tight">{lead.name}</span>
                                                 <div className="flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
                                                     <FiBriefcase className="mr-1.5" />
-                                                    {lead.companyName || "Independent Entity"}
+                                                    {lead.companyName || "No Company"}
                                                 </div>
                                             </div>
                                         </div>
@@ -38,7 +38,7 @@ const LeadTable = ({ leads, onEdit, onDelete, onConvert, onView, onAssign }) => 
                                     <td className="px-8 py-5">
                                         <div className="flex items-center text-gray-600 text-sm font-bold">
                                             <FiPhone className="mr-2 text-gray-300 group-hover:text-green-500 transition-colors" />
-                                            {lead.phone || "No terminal link"}
+                                            {lead.phone || "No phone"}
                                         </div>
                                     </td>
                                     <td className="px-8 py-5">
@@ -65,35 +65,35 @@ const LeadTable = ({ leads, onEdit, onDelete, onConvert, onView, onAssign }) => 
                                             <button
                                                 onClick={() => onView(lead)}
                                                 className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all hover:scale-110 active:scale-95 bg-white border border-transparent hover:border-green-100 shadow-sm"
-                                                title="View Observations"
+                                                title="View"
                                             >
                                                 <FiEye size={16} />
                                             </button>
                                             <button
                                                 onClick={() => onAssign(lead)}
                                                 className="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all hover:scale-110 active:scale-95 bg-white border border-transparent hover:border-blue-100 shadow-sm"
-                                                title="Assign Ownership"
+                                                title="Assign"
                                             >
                                                 <FiUserPlus size={16} />
                                             </button>
                                             <button
                                                 onClick={() => onConvert(lead._id)}
                                                 className="p-2.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all hover:scale-110 active:scale-95 bg-white border border-transparent hover:border-orange-100 shadow-sm"
-                                                title="Execute Conversion"
+                                                title="Convert"
                                             >
                                                 <FiCheckCircle size={16} />
                                             </button>
                                             <button
                                                 onClick={() => onEdit(lead)}
                                                 className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all hover:scale-110 active:scale-95 bg-white border border-transparent hover:border-green-100 shadow-sm"
-                                                title="Refine Metadata"
+                                                title="Edit"
                                             >
                                                 <FiEdit2 size={16} />
                                             </button>
                                             <button
                                                 onClick={() => onDelete(lead._id)}
                                                 className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all hover:scale-110 active:scale-95 bg-white border border-transparent hover:border-red-100 shadow-sm"
-                                                title="Purge Prospect"
+                                                title="Delete"
                                             >
                                                 <FiTrash2 size={16} />
                                             </button>
@@ -104,7 +104,7 @@ const LeadTable = ({ leads, onEdit, onDelete, onConvert, onView, onAssign }) => 
                         ) : (
                             <tr>
                                 <td colSpan="5" className="px-8 py-24 text-center text-gray-300 font-black uppercase tracking-[0.2em] italic">
-                                    No records active in mission log.
+                                    No leads found.
                                 </td>
                             </tr>
                         )}

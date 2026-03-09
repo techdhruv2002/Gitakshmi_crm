@@ -25,7 +25,8 @@ exports.getAllCompanies = async (req, res, next) => {
     const total = await Company.countDocuments(query);
 
     res.json({
-      companies,
+      success: true,
+      data: companies,
       totalPages: Math.ceil(total / limit),
       currentPage: page,
       total
@@ -81,7 +82,7 @@ exports.createCompany = async (req, res, next) => {
 exports.updateCompany = async (req, res, next) => {
   try {
     const updated = await Company.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
+    res.json({ success: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -94,8 +95,9 @@ exports.deleteCompany = async (req, res, next) => {
     await Company.findByIdAndDelete(id);
     await User.deleteMany({ companyId: id });
     await Branch.deleteMany({ companyId: id });
-    res.json({ message: "Company Deleted Successfully" });
+    res.json({ success: true, message: "Company and all associated data purged successfully" });
   } catch (error) {
+    console.error("DELETE COMPANY ERROR:", error);
     next(error);
   }
 };
@@ -110,7 +112,7 @@ exports.getAllBranches = async (req, res, next) => {
     if (companyId) query.companyId = companyId;
 
     const branches = await Branch.find(query).populate("companyId", "name");
-    res.json(branches);
+    res.json({ success: true, data: branches });
   } catch (error) {
     next(error);
   }
@@ -119,7 +121,7 @@ exports.getAllBranches = async (req, res, next) => {
 exports.createBranch = async (req, res, next) => {
   try {
     const newBranch = await Branch.create(req.body);
-    res.status(201).json(newBranch);
+    res.status(201).json({ success: true, data: newBranch });
   } catch (error) {
     next(error);
   }
@@ -128,7 +130,7 @@ exports.createBranch = async (req, res, next) => {
 exports.updateBranch = async (req, res, next) => {
   try {
     const updated = await Branch.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
+    res.json({ success: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -137,7 +139,7 @@ exports.updateBranch = async (req, res, next) => {
 exports.deleteBranch = async (req, res, next) => {
   try {
     await Branch.findByIdAndDelete(req.params.id);
-    res.json({ message: "Branch Deleted Successfully" });
+    res.json({ success: true, message: "Branch Deleted Successfully" });
   } catch (error) {
     next(error);
   }
@@ -157,7 +159,7 @@ exports.getAllUsers = async (req, res, next) => {
       .populate("companyId", "name")
       .populate("branchId", "name")
       .select("-password");
-    res.json(users);
+    res.json({ success: true, data: users });
   } catch (error) {
     next(error);
   }
@@ -168,7 +170,7 @@ exports.createUser = async (req, res, next) => {
     const { password, ...body } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({ ...body, password: hashedPassword });
-    res.status(201).json(newUser);
+    res.status(201).json({ success: true, data: newUser });
   } catch (error) {
     next(error);
   }
@@ -180,7 +182,7 @@ exports.updateUser = async (req, res, next) => {
       req.body.password = await bcrypt.hash(req.body.password, 10);
     }
     const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select("-password");
-    res.json(updated);
+    res.json({ success: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -189,7 +191,7 @@ exports.updateUser = async (req, res, next) => {
 exports.deleteUser = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.id);
-    res.json({ message: "User Deleted Successfully" });
+    res.json({ success: true, message: "User Deleted Successfully" });
   } catch (error) {
     next(error);
   }
@@ -209,7 +211,7 @@ exports.getAllLeads = async (req, res, next) => {
       .populate("companyId", "name")
       .populate("assignedTo", "name email")
       .sort({ createdAt: -1 });
-    res.json(leads);
+    res.json({ success: true, data: leads });
   } catch (error) {
     next(error);
   }
@@ -218,7 +220,7 @@ exports.getAllLeads = async (req, res, next) => {
 exports.deleteLead = async (req, res, next) => {
   try {
     await Lead.findByIdAndDelete(req.params.id);
-    res.json({ message: "Lead Purged Successfully" });
+    res.json({ success: true, message: "Lead Purged Successfully" });
   } catch (error) {
     next(error);
   }
@@ -238,7 +240,7 @@ exports.getAllDeals = async (req, res, next) => {
       .populate("leadId", "name email")
       .populate("assignedTo", "name email")
       .sort({ createdAt: -1 });
-    res.json(deals);
+    res.json({ success: true, data: deals });
   } catch (error) {
     next(error);
   }
@@ -247,7 +249,7 @@ exports.getAllDeals = async (req, res, next) => {
 exports.updateDeal = async (req, res, next) => {
   try {
     const updated = await Deal.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
+    res.json({ success: true, data: updated });
   } catch (error) {
     next(error);
   }
@@ -256,7 +258,7 @@ exports.updateDeal = async (req, res, next) => {
 exports.deleteDeal = async (req, res, next) => {
   try {
     await Deal.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deal Purged Successfully" });
+    res.json({ success: true, message: "Deal Purged Successfully" });
   } catch (error) {
     next(error);
   }
@@ -316,10 +318,13 @@ exports.getStats = async (req, res, next) => {
     ].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     res.json({
-      totalCompanies, totalBranches, totalUsers, totalLeads, totalDeals, totalRevenue,
-      totalInquiries, totalCustomers, totalContacts, conversionRate,
-      recentActivities, recentLeads, recentDeals, dealsByStage, leadsByStatus,
-      upcomingAgenda
+      success: true,
+      data: {
+        totalCompanies, totalBranches, totalUsers, totalLeads, totalDeals, totalRevenue,
+        totalInquiries, totalCustomers, totalContacts, conversionRate,
+        recentActivities, recentLeads, recentDeals, dealsByStage, leadsByStatus,
+        upcomingAgenda
+      }
     });
   } catch (error) {
     next(error);

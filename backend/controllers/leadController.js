@@ -8,6 +8,22 @@ const { calculateLeadScore, assignLeadAutomatically } = require("../utils/leadMa
 /* ================= CREATE LEAD ================= */
 exports.createLead = async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+    // STEP 11 — DUPLICATE LEAD DETECTION (Stability)
+    let existingLead = await Lead.findOne({
+      $or: [{ email: req.body.email }, { phone: req.body.phone }],
+      companyId: req.user.companyId,
+      isDeleted: false
+    });
+
+    if (existingLead) {
+      existingLead.notes = (existingLead.notes || "") + "\n\nDuplicate Creation Attempt: " + (req.body.notes || "No notes");
+      await existingLead.save();
+      console.log("Existing Lead updated instead of creating new:", existingLead._id);
+      return res.json({ success: true, message: "Lead already exists, updated notes.", data: existingLead });
+    }
+
     const lead = await Lead.create({
       ...req.body,
       companyId: req.user.companyId,
@@ -15,6 +31,15 @@ exports.createLead = async (req, res) => {
       createdBy: req.user.id,
       assignedTo: req.user.role === "sales" ? req.user.id : (req.body.assignedTo || null)
     });
+
+    if (req.body.sourceId) {
+      const LeadSource = require("../models/LeadSource");
+      const sourceObj = await LeadSource.findById(req.body.sourceId);
+      if (sourceObj) {
+        lead.source = sourceObj.name;
+        await lead.save();
+      }
+    }
 
     // Module 2: Automatic Lead Assignment if unassigned
     if (!lead.assignedTo) {
@@ -30,13 +55,17 @@ exports.createLead = async (req, res) => {
     // Run Automations
     await runAutomation("lead_created", req.user.companyId, { record: finalizedLead, userId: req.user.id, ...finalizedLead.toObject() });
 
-    res.json({
-      message: "Lead Created & Managed via AI",
-      lead: finalizedLead
+    console.log("Lead created:", finalizedLead._id, "for company:", req.user.companyId);
+
+    res.status(201).json({
+      success: true,
+      message: "Lead Created successfully",
+      data: finalizedLead
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("CREATE LEAD ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -44,37 +73,34 @@ exports.createLead = async (req, res) => {
 /* ================= GET LEADS ================= */
 exports.getLeads = async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
     const { search, status } = req.query;
-    let filter = {
-      companyId: req.user.companyId,
-      isDeleted: false
-    };
+    let filter = { isDeleted: false };
+    if (search) filter.name = { $regex: search, $options: "i" };
+    if (status) filter.status = status;
 
-    if (search) {
-      filter.name = { $regex: search, $options: "i" };
-    }
-
-    if (status) {
-      filter.status = status;
-    }
-
-    // Role-based filtering
-    if (req.user.role === "branch_manager") {
-      filter.branchId = req.user.branchId;
-    }
-
-    if (req.user.role === "sales") {
-      filter.assignedTo = req.user.id;
+    if (req.user.role !== "super_admin") {
+      filter.companyId = req.user.companyId;
+      if (req.user.role === "branch_manager") {
+        filter.branchId = req.user.branchId;
+      }
+      if (req.user.role === "sales") {
+        filter.assignedTo = req.user.id;
+      }
     }
 
     const leads = await Lead.find(filter)
       .populate("assignedTo", "name email role")
-      .populate("createdBy", "name email");
+      .populate("createdBy", "name email")
+      .populate("sourceId")
+      .sort({ createdAt: -1 });
 
-    res.json(leads);
+    res.json({ success: true, data: leads });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("GET LEADS ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -82,23 +108,102 @@ exports.getLeads = async (req, res) => {
 /* ================= UPDATE LEAD ================= */
 exports.updateLead = async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
     const query = { _id: req.params.id, companyId: req.user.companyId };
     if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
     if (req.user.role === "sales") query.assignedTo = req.user.id;
 
-    // ✅ Never allow client to overwrite these protected fields
     const { companyId, branchId, createdBy, isDeleted, isConverted, ...safeBody } = req.body;
+
+    const previousLead = await Lead.findOne(query);
+    if (!previousLead) return res.status(404).json({ success: false, message: "Lead not found" });
+
+    const updateData = { ...req.body };
+    if (req.body.sourceId) {
+      const LeadSource = require("../models/LeadSource");
+      const sourceObj = await LeadSource.findById(req.body.sourceId);
+      if (sourceObj) {
+        updateData.source = sourceObj.name;
+      }
+    }
 
     const lead = await Lead.findOneAndUpdate(
       query,
-      safeBody,
+      updateData,
       { new: true }
     );
 
-    if (!lead) return res.status(404).json({ message: "Lead not found" });
-    res.json(lead);
+    // STEP 8 — CUSTOMER CREATION on "Won"
+    if (safeBody.status && safeBody.status.toLowerCase() === "won" && previousLead.status.toLowerCase() !== "won") {
+      if (!lead.isConverted) {
+        const Customer = require("../models/Customer");
+        const Contact = require("../models/Contact");
+
+        const customer = await Customer.create({
+          name: lead.companyName || lead.name + " Account",
+          phone: lead.phone,
+          email: lead.email,
+          companyId: lead.companyId,
+          branchId: lead.branchId,
+          createdBy: req.user.id
+        });
+
+        const contact = await Contact.create({
+          name: lead.name,
+          email: lead.email,
+          phone: lead.phone,
+          customerId: customer._id,
+          companyId: lead.companyId,
+          branchId: lead.branchId,
+          assignedTo: lead.assignedTo || req.user.id,
+          createdBy: req.user.id
+        });
+
+        lead.isConverted = true;
+        await lead.save();
+      }
+    }
+
+    res.json({ success: true, data: lead });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("UPDATE LEAD ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/* ================= ASSIGN LEAD ================= */
+exports.assignLead = async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+    const { assignedTo } = req.body;
+    if (!assignedTo) return res.status(400).json({ success: false, message: "assignedTo is required" });
+
+    const query = { _id: req.params.id, companyId: req.user.companyId };
+    if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
+
+    const lead = await Lead.findOneAndUpdate(
+      query,
+      { assignedTo },
+      { new: true }
+    ).populate("assignedTo", "name email");
+
+    if (!lead) return res.status(404).json({ success: false, message: "Lead not found or access denied" });
+
+    const { createNotification } = require("../utils/notificationService");
+    await createNotification({
+      userId: assignedTo,
+      companyId: lead.companyId,
+      title: "New Lead Assigned",
+      message: `You have been assigned a new lead: ${lead.name}`,
+      type: "info"
+    });
+
+    res.json({ success: true, message: "Lead assigned successfully", data: lead });
+  } catch (error) {
+    console.error("ASSIGN LEAD ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -106,25 +211,27 @@ exports.updateLead = async (req, res) => {
 /* ================= DELETE LEAD (Soft Delete) ================= */
 exports.deleteLead = async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
 
     const query = { _id: req.params.id, companyId: req.user.companyId };
     if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
     if (req.user.role === "sales") query.assignedTo = req.user.id;
 
-    await Lead.findOneAndUpdate(query, {
-      isDeleted: true
-    });
+    const lead = await Lead.findOneAndUpdate(query, { isDeleted: true });
+    if (!lead) return res.status(404).json({ success: false, message: "Lead not found" });
 
-    res.json({ message: "Lead Deleted Successfully" });
+    res.json({ success: true, message: "Lead Deleted Successfully" });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("DELETE LEAD ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /* ================= CONVERT LEAD TO DEAL ================= */
 exports.convertLead = async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
 
     const query = { _id: req.params.id, companyId: req.user.companyId };
     if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
@@ -133,14 +240,13 @@ exports.convertLead = async (req, res) => {
     const lead = await Lead.findOne(query);
 
     if (!lead) {
-      return res.status(404).json({ message: "Lead not found in your access scope" });
+      return res.status(404).json({ success: false, message: "Lead not found in your access scope" });
     }
 
     if (lead.isConverted) {
-      return res.status(400).json({ message: "Lead already converted" });
+      return res.status(400).json({ success: false, message: "Lead already converted" });
     }
 
-    // 1. Create Customer (Account)
     const customer = await Customer.create({
       name: lead.companyName || lead.name + " Account",
       phone: lead.phone,
@@ -150,7 +256,6 @@ exports.convertLead = async (req, res) => {
       createdBy: req.user.id
     });
 
-    // 2. Create Contact
     const contact = await Contact.create({
       name: lead.name,
       email: lead.email,
@@ -162,7 +267,6 @@ exports.convertLead = async (req, res) => {
       createdBy: req.user.id
     });
 
-    // 3. Create Deal from Lead
     const deal = await Deal.create({
       title: lead.name + " Opportunity",
       value: lead.value || 0,
@@ -176,23 +280,20 @@ exports.convertLead = async (req, res) => {
       createdBy: req.user.id
     });
 
-    // Update Lead
     lead.isConverted = true;
-    lead.status = "Won"; // Signifies the lead part of lifecycle is Won
+    lead.status = "Won";
     await lead.save();
 
-    // Trigger automation
     await runAutomation("deal_created", lead.companyId, { record: deal, userId: req.user.id });
 
     res.json({
       success: true,
       message: "Lead Converted to Customer & Deal Successfully",
-      customer,
-      contact,
-      deal
+      data: { customer, contact, deal }
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("CONVERT LEAD ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

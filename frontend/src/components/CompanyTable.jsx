@@ -8,10 +8,10 @@ const CompanyTable = ({ companies, onEdit, onDelete, onStatusChange }) => {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50/50 border-b border-gray-100">
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Company Details</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Contact Channels</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Platform Status</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Operations</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Company</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Contact Info</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Status</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -28,7 +28,7 @@ const CompanyTable = ({ companies, onEdit, onDelete, onStatusChange }) => {
                                             </div>
                                             <div>
                                                 <span className="font-black text-gray-900 tracking-tight">{company.name}</span>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase mt-1 tracking-widest">Enterprise Client</p>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase mt-1 tracking-widest">Company</p>
                                             </div>
                                         </div>
                                     </td>
@@ -56,14 +56,14 @@ const CompanyTable = ({ companies, onEdit, onDelete, onStatusChange }) => {
                                             <button
                                                 onClick={() => onEdit(company)}
                                                 className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all shadow-sm bg-white border border-transparent hover:border-green-100"
-                                                title="Edit Profile"
+                                                title="Edit"
                                             >
                                                 <FiEdit2 size={16} />
                                             </button>
                                             <button
                                                 onClick={() => onDelete(company._id)}
                                                 className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm bg-white border border-transparent hover:border-red-100"
-                                                title="Revoke License"
+                                                title="Delete"
                                             >
                                                 <FiTrash2 size={16} />
                                             </button>
@@ -74,7 +74,7 @@ const CompanyTable = ({ companies, onEdit, onDelete, onStatusChange }) => {
                         ) : (
                             <tr>
                                 <td colSpan="4" className="px-8 py-20 text-center text-gray-400 font-bold bg-gray-50/20 italic">
-                                    No data discovered in the database architecture.
+                                    No companies found.
                                 </td>
                             </tr>
                         )}

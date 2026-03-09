@@ -65,10 +65,10 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                 <div className="px-10 py-8 bg-gradient-to-r from-green-50 to-white flex items-center justify-between border-b border-gray-50">
                     <div>
                         <h2 className="text-3xl font-black text-gray-900 tracking-tight">
-                            {editingData ? "Enterprise Modernization" : "Global Enterprise Inception"}
+                            {editingData ? "Edit Company" : "Add Company"}
                         </h2>
                         <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mt-1">
-                            {editingData ? "Node Metric Calibration" : "Strategic Architecture Deployment"}
+                            {editingData ? "Update company details" : "Create a new company"}
                         </p>
                     </div>
                     <button onClick={onClose} className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all">
@@ -80,11 +80,11 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                     {/* Primary Metadata */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 text-gray-300 font-black uppercase tracking-[0.3em] text-[10px]">
-                            <FiActivity /> Core Configuration
+                            <FiActivity /> Basic Info
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Corporate Identity *</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Company Name *</label>
                                 <div className="relative group">
                                     <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                     <input
@@ -99,7 +99,7 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Enterprise Domain *</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Website *</label>
                                 <div className="relative group">
                                     <FiGlobe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                     <input
@@ -114,7 +114,7 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Communication Channel *</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Email *</label>
                                 <div className="relative group">
                                     <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                     <input
@@ -129,7 +129,7 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Regional Comm Link</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Phone</label>
                                 <div className="relative group">
                                     <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                     <input
@@ -145,7 +145,7 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Physical Jurisdiction (Address)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Address</label>
                             <div className="relative group">
                                 <FiMapPin className="absolute left-4 top-4 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <textarea
@@ -164,11 +164,11 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                     {!editingData && (
                         <div className="space-y-6 pt-4 border-t border-gray-50">
                             <div className="flex items-center gap-3 text-gray-300 font-black uppercase tracking-[0.3em] text-[10px]">
-                                <FiShield /> Admin Security Provisioning
+                                <FiShield /> Admin Account
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Admin Identity *</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Admin Name *</label>
                                     <div className="relative group">
                                         <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                         <input
@@ -176,14 +176,14 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                             name="adminName"
                                             type="text"
                                             className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-[1.25rem] outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm"
-                                            placeholder="Lead Admin Name"
+                                            placeholder="Admin Name"
                                             value={formData.adminName}
                                             onChange={handleChange}
                                         />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Admin Auth Key *</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Admin Password *</label>
                                     <div className="relative group">
                                         <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                         <input
@@ -191,7 +191,7 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                             name="adminPassword"
                                             type="password"
                                             className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-[1.25rem] outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm"
-                                            placeholder="Provision Access Code"
+                                            placeholder="Admin Password"
                                             value={formData.adminPassword}
                                             onChange={handleChange}
                                         />
@@ -201,7 +201,7 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                             <div className="p-5 bg-orange-50/50 rounded-[1.5rem] border border-orange-100 flex items-start gap-3">
                                 <FiInfo className="text-orange-400 mt-1 shrink-0" />
                                 <p className="text-[10px] font-bold text-orange-600 leading-relaxed uppercase tracking-widest">
-                                    Strategic Warning: This identity will become the Root Controller for the enterprise node. Verification is mandatory.
+                                    Note: This user will be the main administrator for this company.
                                 </p>
                             </div>
                         </div>
@@ -214,14 +214,14 @@ const AddCompanyModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                             onClick={onClose}
                             className="flex-1 px-8 py-5 bg-gray-100 text-gray-500 font-black rounded-3xl hover:bg-gray-200 transition-all text-[11px] uppercase tracking-[0.2em]"
                         >
-                            Abort
+                            Cancel
                         </button>
                         <button
                             type="submit"
                             className="flex-[2] flex items-center justify-center gap-3 px-8 py-5 bg-green-600 text-white font-black rounded-3xl shadow-2xl shadow-green-500/30 hover:bg-green-700 hover:scale-[1.02] active:scale-95 transition-all text-[11px] uppercase tracking-[0.2em]"
                         >
                             <FiPlus size={20} />
-                            {editingData ? "Update Cluster Meta" : "Initialize Enterprise Deployment"}
+                            {editingData ? "Save Changes" : "Create Company"}
                         </button>
                     </div>
                 </form>

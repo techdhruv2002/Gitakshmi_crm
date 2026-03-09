@@ -46,7 +46,8 @@ export default function UserFormPage() {
             try {
                 const url = isSuperAdmin ? "/super-admin/branches" : "/branches";
                 const res = await API.get(url);
-                setBranches(Array.isArray(res.data) ? res.data : res.data?.branches || []);
+                const branchesData = res.data?.data || (Array.isArray(res.data) ? res.data : res.data?.branches || []);
+                setBranches(branchesData);
             } catch { /* branches optional */ }
         };
         fetchBranches();

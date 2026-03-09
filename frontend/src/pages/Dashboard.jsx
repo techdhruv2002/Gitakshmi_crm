@@ -16,7 +16,7 @@ const Dashboard = () => {
             // Role-based endpoint selection
             const endpoint = role === "super_admin" ? "/super-admin/stats" : "/dashboard";
             const res = await API.get(endpoint);
-            setStats(res.data);
+            setStats(res.data?.data || res.data);
         } catch (err) {
             console.error("Error fetching stats:", err);
         } finally {
@@ -37,7 +37,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-center h-[70vh]">
                 <div className="animate-pulse flex flex-col items-center">
                     <div className="w-16 h-16 bg-green-100 rounded-2xl mb-4 rotate-45"></div>
-                    <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Summoning Intelligence...</p>
+                    <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Loading...</p>
                 </div>
             </div>
         );
@@ -78,12 +78,12 @@ const Dashboard = () => {
                 )}
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-                        {isSuperAdmin ? "Super Admin Command Center" : isSales ? "Personal Sales Studio" : "Performance Dashboard"}
+                        {isSuperAdmin ? "Dashboard" : isSales ? "My Dashboard" : "Admin Dashboard"}
                     </h1>
                     <p className="text-gray-500 font-medium text-sm mt-1">
                         {isSuperAdmin
-                            ? "Global CRM metrics across all companies and branches."
-                            : isSales ? `Hello, ${user.name || 'Sales Pro'}! Here's your personal pipeline performance.` : "Track your sales pipeline and engagement metrics."}
+                            ? "See how all companies and branches are doing."
+                            : isSales ? `Hello, ${user.name || 'Sales Pro'}! Here is how you are doing.` : "Track your sales and customer activity."}
                     </p>
                 </div>
                 <button
@@ -104,9 +104,9 @@ const Dashboard = () => {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                                 </span>
-                                <h2 className="text-xl font-black text-gray-900 tracking-tight">Your High-Priority Prospects</h2>
+                                <h2 className="text-xl font-black text-gray-900 tracking-tight">Hot Leads</h2>
                             </div>
-                            <p className="text-sm font-bold text-gray-500 mt-1">These leads have high engagement scores. Close them fast!</p>
+                            <p className="text-sm font-bold text-gray-500 mt-1">Leads that need immediate attention.</p>
                         </div>
 
                         <div className="flex flex-wrap gap-4">
@@ -117,7 +117,7 @@ const Dashboard = () => {
                                     </div>
                                     <div className="pr-4">
                                         <p className="text-sm font-black text-gray-800">{lead.name}</p>
-                                        <p className="text-[10px] font-black text-gray-400 uppercase mt-0.5">{lead.companyName || "Personal Lead"}</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase mt-0.5">{lead.companyName || "Individual Lead"}</p>
                                     </div>
                                 </div>
                             ))}
@@ -154,8 +154,8 @@ const Dashboard = () => {
                                 <div className="flex items-center gap-4">
                                     <div className="p-3.5 bg-green-50 text-green-600 rounded-2xl shadow-sm"><FiCalendar size={22} /></div>
                                     <div>
-                                        <h3 className="text-xl font-black text-gray-900 tracking-tight">Personal Focus: Next 48 Hours</h3>
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Don't miss these upcoming opportunities.</p>
+                                        <h3 className="text-xl font-black text-gray-900 tracking-tight">My Schedule</h3>
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Upcoming activities.</p>
                                     </div>
                                 </div>
                             </div>
@@ -178,7 +178,7 @@ const Dashboard = () => {
                                 )) : (
                                     <div className="col-span-2 py-20 bg-white text-center">
                                         <div className="w-16 h-16 bg-gray-50 rounded-2xl mx-auto flex items-center justify-center text-gray-200 mb-4 border border-gray-100"><FiCalendar size={28} /></div>
-                                        <p className="text-gray-400 font-black italic uppercase tracking-[0.2em] text-xs">No entries in your calendar for next 48 hours.</p>
+                                        <p className="text-gray-400 font-black italic uppercase tracking-[0.2em] text-xs">No activities scheduled.</p>
                                     </div>
                                 )}
                             </div>
@@ -188,7 +188,7 @@ const Dashboard = () => {
                         <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden lg:col-span-12">
                             <div className="p-8 border-b border-gray-50 flex items-center gap-4 bg-gray-50/20">
                                 <div className="p-3 bg-gray-50 text-gray-400 rounded-xl"><FiClock size={18} /></div>
-                                <h3 className="font-black text-gray-900 tracking-tight">Recent Activity Stream</h3>
+                                <h3 className="font-black text-gray-900 tracking-tight">Recent Activity</h3>
                             </div>
                             <div className="p-6">
                                 <div className="space-y-1">
@@ -205,7 +205,7 @@ const Dashboard = () => {
                                         </div>
                                     ))}
                                     {(!stats?.recentActivities || stats.recentActivities.length === 0) && (
-                                        <div className="text-center py-10 text-gray-400 font-bold text-xs uppercase tracking-widest italic">No recent events logged.</div>
+                                        <div className="text-center py-10 text-gray-400 font-bold text-xs uppercase tracking-widest italic">No new activity.</div>
                                     )}
                                 </div>
                             </div>
@@ -219,7 +219,7 @@ const Dashboard = () => {
                             <div className="p-7 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2.5 bg-green-50 text-green-600 rounded-xl shadow-sm"><FiTrendingUp /></div>
-                                    <h3 className="font-black text-gray-900 tracking-tight">{isSales ? 'My Fresh Leads' : 'Inbound Leads'}</h3>
+                                    <h3 className="font-black text-gray-900 tracking-tight">{isSales ? 'My New Leads' : 'New Leads'}</h3>
                                 </div>
                                 <button className="p-2 text-gray-300 hover:text-green-500 transition-colors"><FiArrowUpRight /></button>
                             </div>
@@ -231,13 +231,13 @@ const Dashboard = () => {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-black text-gray-900 truncate">{lead.name}</p>
-                                            <p className="text-[9px] font-black text-gray-400 uppercase truncate mt-0.5">{lead.companyId?.name || "Independent Account"}</p>
+                                            <p className="text-[9px] font-black text-gray-400 uppercase truncate mt-0.5">{lead.companyId?.name || "Individual"}</p>
                                         </div>
                                         <span className={`text-[8px] px-2 py-0.5 rounded-md font-black ${lead.status === 'new' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'} uppercase tracking-widest`}>
                                             {lead.status}
                                         </span>
                                     </div>
-                                )) : <div className="p-12 text-center text-gray-400 italic font-black text-[10px] uppercase">No active leads assigned.</div>}
+                                )) : <div className="p-12 text-center text-gray-400 italic font-black text-[10px] uppercase">No new leads assigned.</div>}
                             </div>
                         </div>
 
@@ -246,7 +246,7 @@ const Dashboard = () => {
                             <div className="p-7 border-b border-orange-50 flex items-center justify-between bg-orange-50/10">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2.5 bg-orange-50 text-orange-600 rounded-xl shadow-sm"><FiCheckCircle /></div>
-                                    <h3 className="font-black text-gray-900 tracking-tight">{isSales ? 'My Active Pipeline' : 'Active Deals'}</h3>
+                                    <h3 className="font-black text-gray-900 tracking-tight">{isSales ? 'My Active Deals' : 'Active Deals'}</h3>
                                 </div>
                                 <button className="p-2 text-orange-200 hover:text-orange-500 transition-colors"><FiArrowUpRight /></button>
                             </div>
@@ -264,7 +264,7 @@ const Dashboard = () => {
                                             {deal.stage}
                                         </span>
                                     </div>
-                                )) : <div className="p-12 text-center text-gray-400 italic font-black text-[10px] uppercase">No pending deals in pipeline.</div>}
+                                )) : <div className="p-12 text-center text-gray-400 italic font-black text-[10px] uppercase">No active deals.</div>}
                             </div>
                         </div>
                     </div>

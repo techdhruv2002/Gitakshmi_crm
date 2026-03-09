@@ -16,9 +16,9 @@ const LoginForm = () => {
         setError("");
 
         // Client-side validation before hitting API
-        if (!email.trim()) { setError("Email address is required."); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError("Enter a valid email address."); return; }
-        if (!password) { setError("Password is required."); return; }
+        if (!email.trim()) { setError("Please enter your email."); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError("Please enter a real email."); return; }
+        if (!password) { setError("Enter your password."); return; }
         if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
 
         setLoading(true);
@@ -27,7 +27,7 @@ const LoginForm = () => {
             const { token, user } = res.data;
 
             if (!token || !user?.role) {
-                setError("Server returned an invalid response. Please contact support.");
+                setError("Error on our end. Try again or contact support.");
                 return;
             }
 
@@ -39,7 +39,7 @@ const LoginForm = () => {
         } catch (err) {
             setError(
                 err.response?.data?.message ||
-                "Invalid credentials. Please check your email and password."
+                "Incorrect email or password."
             );
         } finally {
             setLoading(false);
@@ -57,7 +57,7 @@ const LoginForm = () => {
             {/* Heading */}
             <div className="mb-14">
                 <h2 className="text-4xl xl:text-5xl font-black text-gray-900 tracking-tight">Welcome</h2>
-                <p className="text-gray-500 font-medium mt-3 text-lg">Sign in to your account to continue.</p>
+                <p className="text-gray-500 font-medium mt-3 text-lg">Sign in to continue.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
@@ -103,7 +103,7 @@ const LoginForm = () => {
                         <input
                             type={showPass ? "text" : "password"}
                             autoComplete="current-password"
-                            placeholder="Enter your password"
+                            placeholder="Password"
                             value={password}
                             onChange={e => { setPassword(e.target.value); setError(""); }}
                             className="w-full pl-14 pr-14 py-5 bg-gray-50 border border-gray-100 rounded-2xl text-base font-bold text-gray-800 placeholder-gray-300 outline-none
@@ -147,8 +147,7 @@ const LoginForm = () => {
             {/* Footer */}
             <div className="mt-10 pt-8 border-t border-gray-100">
                 <p className="text-center text-xs text-gray-400 font-medium">
-                    Protected by enterprise-grade security.{" "}
-                    <span className="text-gray-500 font-bold">256-bit SSL encryption.</span>
+                    Your data is safe.
                 </p>
             </div>
         </div>

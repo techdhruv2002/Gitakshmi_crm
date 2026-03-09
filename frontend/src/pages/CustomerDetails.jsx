@@ -24,8 +24,8 @@ const CustomerDetails = () => {
         fetchDetails();
     }, [id]);
 
-    if (loading) return <div className="h-[60vh] flex items-center justify-center font-black text-slate-300 uppercase tracking-widest animate-pulse">Synchronizing Intelligence...</div>;
-    if (!data) return <div className="p-20 text-center font-black text-red-400 uppercase tracking-widest">Customer Record Offline.</div>;
+    if (loading) return <div className="h-[60vh] flex items-center justify-center font-black text-slate-300 uppercase tracking-widest animate-pulse">Loading Customer Data...</div>;
+    if (!data) return <div className="p-20 text-center font-black text-red-400 uppercase tracking-widest">Customer Not Found.</div>;
 
     const { customer, contacts, deals, activities, revenue } = data;
 
@@ -40,9 +40,9 @@ const CustomerDetails = () => {
                     <div>
                         <h1 className="text-4xl font-black text-gray-900 tracking-tighter flex items-center gap-4">
                             {customer.name}
-                            <span className="px-3 py-1 bg-green-50 text-green-600 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg border border-green-100 shadow-sm shadow-green-500/10">Active Client</span>
+                            <span className="px-3 py-1 bg-green-50 text-green-600 text-[9px] font-black uppercase tracking-[0.2em] rounded-lg border border-green-100 shadow-sm shadow-green-500/10">Active Customer</span>
                         </h1>
-                        <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-2 opacity-80">Full-Stack Enterprise Node & Intelligence Core</p>
+                        <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-2 opacity-80">Customer Profile and Details</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -60,9 +60,9 @@ const CustomerDetails = () => {
             {/* Core Metrics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { label: "Total Revenue Yield", val: revenue, icon: <FaIndianRupeeSign />, color: "text-green-600", bg: "bg-green-50" },
-                    { label: "Open Opportunities", val: deals.length, icon: <FiBriefcase />, color: "text-blue-600", bg: "bg-blue-50" },
-                    { label: "Strategic Contacts", val: contacts.length, icon: <FiUser />, color: "text-emerald-600", bg: "bg-emerald-50" },
+                    { label: "Total Revenue", val: revenue, icon: <FaIndianRupeeSign />, color: "text-green-600", bg: "bg-green-50" },
+                    { label: "Open Deals", val: deals.length, icon: <FiBriefcase />, color: "text-blue-600", bg: "bg-blue-50" },
+                    { label: "Total Contacts", val: contacts.length, icon: <FiUser />, color: "text-emerald-600", bg: "bg-emerald-50" },
                     { label: "Total Engagements", val: activities.calls.length + activities.meetings.length, icon: <FiActivity />, color: "text-orange-600", bg: "bg-orange-50" }
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-6 rounded-2xl border border-gray-50 flex items-center gap-5 shadow-sm">
@@ -84,32 +84,32 @@ const CustomerDetails = () => {
                 <div className="lg:col-span-4 space-y-6">
                     <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-8">
                         <div>
-                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Node Metadata</h4>
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Customer Details</h4>
                             <div className="space-y-5">
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400"><FiMail /></div>
-                                    <span className="font-bold text-gray-700 text-sm truncate">{customer.email || "No Comms Channel"}</span>
+                                    <span className="font-bold text-gray-700 text-sm truncate">{customer.email || "No Email Address"}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400"><FiPhone /></div>
-                                    <span className="font-bold text-gray-700 text-sm">{customer.phone || "No Terminal Link"}</span>
+                                    <span className="font-bold text-gray-700 text-sm">{customer.phone || "No Phone Number"}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400"><FiActivity /></div>
-                                    <span className="font-bold text-gray-700 text-sm capitalize">{customer.industry || "General Sector"}</span>
+                                    <span className="font-bold text-gray-700 text-sm capitalize">{customer.industry || "No Industry Listed"}</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="pt-8 border-t border-gray-50">
-                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Decision Hub (Contacts)</h4>
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Key Contacts</h4>
                             <div className="space-y-4">
                                 {contacts.map(c => (
                                     <div key={c._id} className="flex items-center gap-4 bg-gray-50/50 p-4 rounded-xl border border-transparent hover:border-green-100 transition-all cursor-pointer group">
                                         <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center font-black text-green-500 shadow-sm">{c.name.charAt(0)}</div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-black text-gray-800 text-sm truncate">{c.name}</p>
-                                            <p className="text-[10px] font-bold text-gray-400 truncate tracking-tight">{c.role || "Technical Stakeholder"}</p>
+                                            <p className="text-[10px] font-bold text-gray-400 truncate tracking-tight">{c.role || "No Role Specified"}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -136,7 +136,7 @@ const CustomerDetails = () => {
                         {activeTab === "overview" && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <ActivityMetric title="Call Engagements" items={activities.calls} icon={<FiPhone />} />
-                                <ActivityMetric title="Meeting Matrix" items={activities.meetings} icon={<FiCalendar />} />
+                                <ActivityMetric title="Meetings" items={activities.meetings} icon={<FiCalendar />} />
                             </div>
                         )}
 
@@ -145,9 +145,9 @@ const CustomerDetails = () => {
                                 <table className="w-full text-left">
                                     <thead className="bg-gray-50 border-b border-gray-100">
                                         <tr>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Opportunity</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Valuation</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">State</th>
+                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Deal Name</th>
+                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Value</th>
+                                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Stage</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
@@ -182,7 +182,7 @@ const CustomerDetails = () => {
                                             <div className="flex-1 pt-1">
                                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{new Date(item.createdAt).toLocaleString()}</p>
                                                 <h5 className="font-black text-gray-900 mt-1 tracking-tight">{item.title}</h5>
-                                                <p className="text-sm text-gray-500 font-bold mt-2 leading-relaxed italic opacity-80">"{item.description || item.outcome || "Signal logged without contextual data."}"</p>
+                                                <p className="text-sm text-gray-500 font-bold mt-2 leading-relaxed italic opacity-80">"{item.description || item.outcome || "No description provided."}"</p>
                                             </div>
                                         </div>
                                     ))}
@@ -211,8 +211,8 @@ const ActivityMetric = ({ title, items, icon }) => (
                     {item.title}
                 </div>
             ))}
-            {items.length > 3 && <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest text-center mt-4">+{items.length - 3} Operational Signals</p>}
-            {items.length === 0 && <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest text-center py-6 border-2 border-dashed border-gray-50 rounded-2xl">Signal Dormant</p>}
+            {items.length > 3 && <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest text-center mt-4">+{items.length - 3} More Activities</p>}
+            {items.length === 0 && <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest text-center py-6 border-2 border-dashed border-gray-50 rounded-2xl">No Activities</p>}
         </div>
     </div>
 );

@@ -18,8 +18,9 @@ function Companies() {
     setLoading(true);
     try {
       const res = await API.get(`/super-admin/companies?search=${search}&page=${page}`);
-      if (res.data?.companies) {
-        setCompanies(res.data.companies);
+      const companiesData = res.data?.data || res.data?.companies || [];
+      if (companiesData) {
+        setCompanies(companiesData);
         setTotalPages(res.data.totalPages || 1);
       } else {
         setCompanies([]);
@@ -33,10 +34,10 @@ function Companies() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this company? All its users and branches will also be removed.")) return;
+    if (!window.confirm("Are you sure you want to delete this company?")) return;
     try {
       await API.delete(`/super-admin/companies/${id}`);
-      toast.success("Company deleted successfully.");
+      toast.success("Company deleted.");
       fetchCompanies();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to delete company.");
@@ -54,9 +55,9 @@ function Companies() {
     <div className="space-y-8 animate-in fade-in duration-700 pb-10">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Enterprise Companies</h1>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Companies</h1>
           <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">
-            Manage and scale company-level CRM resources globally.
+            Manage all your companies here.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
@@ -83,7 +84,7 @@ function Companies() {
       {loading ? (
         <div className="h-[400px] bg-white rounded-[2rem] border border-gray-100 flex flex-col items-center justify-center space-y-4 animate-pulse shadow-sm">
           <div className="w-12 h-12 border-[6px] border-green-50 border-t-green-500 rounded-full animate-spin" />
-          <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Loading Companies...</p>
+          <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Loading...</p>
         </div>
       ) : (
         <div className="space-y-6">

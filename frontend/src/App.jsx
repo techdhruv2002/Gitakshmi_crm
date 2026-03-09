@@ -28,6 +28,10 @@ const Calendar = lazy(() => import("./pages/Calendar"));
 const Automation = lazy(() => import("./pages/Automation"));
 const Inquiries = lazy(() => import("./pages/Inquiries"));
 const CustomerDetails = lazy(() => import("./pages/CustomerDetails"));
+const Activities = lazy(() => import("./pages/Activities"));
+const Tasks = lazy(() => import("./pages/Tasks"));
+const DealPipelinePage = lazy(() => import("./pages/DealPipelinePage"));
+const AnalyticsDashboard = lazy(() => import("./pages/AnalyticsDashboard"));
 
 // ── Lazy-loaded Full-page Form Pages ─────────────────────────────────────────
 const CompanyFormPage = lazy(() => import("./pages/forms/CompanyFormPage"));
@@ -53,14 +57,14 @@ const PageLoader = () => (
 // If user has a valid session for any role → send to their home.
 // Otherwise → /login
 const SmartRedirect = () => {
-  const roleKeys = [
-    { key: "sa_session", role: "super_admin" },
-    { key: "ca_session", role: "company_admin" },
-    { key: "bm_session", role: "branch_manager" },
-    { key: "su_session", role: "sales" },
+  const roles = [
+    "super_admin",
+    "company_admin",
+    "branch_manager",
+    "sales"
   ];
-  for (const { key } of roleKeys) {
-    const session = readSession(key);
+  for (const role of roles) {
+    const session = readSession(role);
     if (session?.token && session?.user?.role) {
       return <Navigate to={ROLE_HOME[session.user.role]} replace />;
     }
@@ -139,6 +143,10 @@ function App() {
           <Route path="/company/todos" element={<Todos />} />
           <Route path="/company/calendar" element={<Calendar />} />
           <Route path="/company/reports" element={<Reports />} />
+          <Route path="/company/activities" element={<Activities />} />
+          <Route path="/company/tasks" element={<Tasks />} />
+          <Route path="/company/pipeline" element={<DealPipelinePage />} />
+          <Route path="/company/analytics" element={<AnalyticsDashboard />} />
         </Route>
 
         {/* ════════════════════════════════════
@@ -167,6 +175,10 @@ function App() {
           <Route path="/branch/users" element={<Users />} />
           <Route path="/branch/users/create" element={<UserFormPage />} />
           <Route path="/branch/users/:id/edit" element={<UserFormPage />} />
+          <Route path="/branch/activities" element={<Activities />} />
+          <Route path="/branch/tasks" element={<Tasks />} />
+          <Route path="/branch/pipeline" element={<DealPipelinePage />} />
+          <Route path="/branch/analytics" element={<AnalyticsDashboard />} />
         </Route>
 
         {/* ════════════════════════════════════
@@ -191,6 +203,10 @@ function App() {
           <Route path="/sales/calls" element={<Calls />} />
           <Route path="/sales/meetings" element={<Meetings />} />
           <Route path="/sales/todos" element={<Todos />} />
+          <Route path="/sales/activities" element={<Activities />} />
+          <Route path="/sales/tasks" element={<Tasks />} />
+          <Route path="/sales/pipeline" element={<DealPipelinePage />} />
+          <Route path="/sales/analytics" element={<AnalyticsDashboard />} />
         </Route>
 
         {/* ── Catch-all ── */}

@@ -15,7 +15,7 @@ const TodosPage = () => {
         setLoading(true);
         try {
             const res = await API.get("/crm/todos");
-            setData(res.data?.data || res.data || []);
+            setData(res.data?.data || (Array.isArray(res.data) ? res.data : []));
         } catch (err) {
             console.error(err);
         } finally {
@@ -69,8 +69,8 @@ const TodosPage = () => {
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Task Management</h1>
-                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Capture todos, set priorities, and track progress.</p>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">My Tasks</h1>
+                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">List things you need to do and stay organized.</p>
                 </div>
                 <button
                     onClick={() => { setEditingId(null); setFormData({ task: "", status: "Pending", priority: "Medium", dueDate: "" }); setShowModal(true); }}
@@ -86,7 +86,7 @@ const TodosPage = () => {
                 <div className="space-y-6">
                     <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        Active Pipeline
+                        To Do
                     </h3>
                     <div className="space-y-4">
                         {data.filter(t => t.status !== 'Completed').map((item) => (
@@ -105,14 +105,14 @@ const TodosPage = () => {
                                 </div>
                                 <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onClick={() => { setEditingId(item._id); setFormData({ task: item.task, status: item.status, priority: item.priority, dueDate: item.dueDate ? new Date(item.dueDate).toISOString().slice(0, 10) : "" }); setShowModal(true); }} className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all border border-transparent hover:border-green-100"><FiEdit2 size={16} /></button>
-                                    <button onClick={async () => { if (window.confirm("Archive task?")) { await API.delete(`/crm/todos/${item._id}`); fetchData(); } }} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"><FiTrash2 size={16} /></button>
+                                    <button onClick={async () => { if (window.confirm("Are you sure you want to delete this task?")) { await API.delete(`/crm/todos/${item._id}`); fetchData(); } }} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"><FiTrash2 size={16} /></button>
                                 </div>
                             </div>
                         ))}
                         {data.filter(t => t.status !== 'Completed').length === 0 && (
                             <div className="p-12 border-2 border-dashed border-gray-100 rounded-[2.5rem] flex flex-col items-center justify-center text-center bg-gray-50/50">
                                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-gray-300 mb-4 shadow-sm border border-gray-100"><FiCheckSquare size={24} /></div>
-                                <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">No active tasks. Inbox zero!</p>
+                                <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">No tasks found.</p>
                             </div>
                         )}
                     </div>
@@ -122,7 +122,7 @@ const TodosPage = () => {
                 <div className="space-y-6">
                     <h3 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-gray-300"></span>
-                        Archived / Completed
+                        Done
                     </h3>
                     <div className="opacity-75 relative space-y-3">
                         <div className="absolute top-0 bottom-0 left-6 w-px bg-gray-200 z-0"></div>
@@ -142,17 +142,17 @@ const TodosPage = () => {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
                     <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                         <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
-                            <h3 className="text-xl font-black text-gray-900">{editingId ? "Update Task" : "Draft New Task"}</h3>
+                            <h3 className="text-xl font-black text-gray-900">{editingId ? "Edit Task" : "Add Task"}</h3>
                             <button onClick={() => setShowModal(false)} className="p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 rounded-xl transition-colors"><FiCheckSquare size={20} /></button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-8 space-y-6">
                             <div className="space-y-2.5">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Task Breakdown</label>
-                                <input required placeholder="E.g., Client follow-up, Report prep..." className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-800 text-sm shadow-sm" value={formData.task} onChange={e => setFormData({ ...formData, task: e.target.value })} />
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Task</label>
+                                <input required placeholder="What needs to be done?" className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-800 text-sm shadow-sm" value={formData.task} onChange={e => setFormData({ ...formData, task: e.target.value })} />
                             </div>
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 ml-1">Lifecycle Status</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 ml-1">Status</label>
                                     <select className="w-full pl-5 pr-10 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-700 text-sm shadow-sm appearance-none cursor-pointer" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
                                         <option value="Pending">Pending</option>
                                         <option value="In Progress">In Progress</option>
@@ -161,7 +161,7 @@ const TodosPage = () => {
                                     </select>
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 ml-1">Criticality Index</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 ml-1">Priority</label>
                                     <select className="w-full pl-5 pr-10 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-700 text-sm shadow-sm appearance-none cursor-pointer" value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })}>
                                         <option value="Low">Low</option>
                                         <option value="Medium">Medium</option>
@@ -172,7 +172,7 @@ const TodosPage = () => {
                                 </div>
                             </div>
                             <div className="space-y-2.5">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Deadline</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Due Date</label>
                                 <input type="date" className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-700 text-sm shadow-sm" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} />
                             </div>
                             <div className="pt-6 flex gap-4 border-t border-gray-50">

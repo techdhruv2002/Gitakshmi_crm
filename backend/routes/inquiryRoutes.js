@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const inquiryController = require("../controllers/inquiryController");
-const authMiddleware = require("../middleware/authMiddleware");
+const auth = require("../middleware/auth");
+const checkCompanyAccess = require("../middleware/checkCompanyAccess");
 
-// ✅ authMiddleware FIRST — applies to ALL routes below including POST /
-router.use(authMiddleware);
+// ✅ auth FIRST — applies to ALL routes below including POST /
+router.use(auth, checkCompanyAccess);
 
 router.post("/", inquiryController.createInquiry);
 router.get("/", inquiryController.getInquiries);

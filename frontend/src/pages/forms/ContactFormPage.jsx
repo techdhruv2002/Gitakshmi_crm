@@ -80,21 +80,21 @@ export default function ContactFormPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate(formData)) {
-            toast.warning("Verification failed. Please refine data nodes.");
+            toast.warning("Please fix the errors before submitting.");
             return;
         }
         setLoading(true);
         try {
             if (isEdit) {
                 await API.put(`/crm/contacts/${id}`, formData);
-                toast.success("Contact personnel record refined.");
+                toast.success("Contact updated successfully.");
             } else {
                 await API.post("/crm/contacts", formData);
-                toast.success("New personnel node registered.");
+                toast.success("Contact created successfully.");
             }
             navigate(-1);
         } catch (err) {
-            toast.error(err.response?.data?.message || "Personnel registration failed.");
+            toast.error(err.response?.data?.message || "Failed to save contact.");
         } finally {
             setLoading(false);
         }
@@ -119,7 +119,7 @@ export default function ContactFormPage() {
                 <button onClick={() => navigate(-1)}
                     className="flex items-center gap-2 text-sm font-black text-gray-400 hover:text-green-600 transition-colors mb-6 group">
                     <FiArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                    Back to Personnel
+                    Back to Contacts
                 </button>
                 <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600">
@@ -127,10 +127,10 @@ export default function ContactFormPage() {
                     </div>
                     <div>
                         <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-                            {isEdit ? "Refine Person" : "Register Person"}
+                            {isEdit ? "Edit Contact" : "Add Contact"}
                         </h1>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
-                            Personnel Node Configuration
+                            Contact Information
                         </p>
                     </div>
                 </div>
@@ -139,7 +139,7 @@ export default function ContactFormPage() {
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
                 {/* Core Matrix */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
-                    <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.25em] flex items-center gap-2"> Core Designation Matrix</h2>
+                    <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.25em] flex items-center gap-2"> Basic Details</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-1.5 md:col-span-2">
                             <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Full Name *</label>
@@ -152,7 +152,7 @@ export default function ContactFormPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Email Routing</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Email</label>
                             <div className="relative group">
                                 <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input name="email" className={inputCls("email")} placeholder="Email..."
@@ -162,7 +162,7 @@ export default function ContactFormPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Contact Terminal</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Phone</label>
                             <div className="relative group">
                                 <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <input name="phone" className={inputCls("phone")} placeholder="Phone..."
@@ -175,14 +175,14 @@ export default function ContactFormPage() {
 
                 {/* Association Matrix */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
-                    <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.25em] flex items-center gap-2"> Association Matrix</h2>
+                    <h2 className="text-[11px] font-black text-gray-400 uppercase tracking-[0.25em] flex items-center gap-2"> Company Associations</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div className="space-y-1.5 md:col-span-2">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Corporate Parent *</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Company *</label>
                             <div className="relative group">
                                 <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <select name="customerId" className={inputCls("customerId")} value={formData.customerId} onChange={handleChange}>
-                                    <option value="">Link Account...</option>
+                                    <option value="">Select Company...</option>
                                     {customers.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                                 </select>
                             </div>
@@ -190,7 +190,7 @@ export default function ContactFormPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Department Cluster</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Department</label>
                             <div className="relative group">
                                 <FiLayers className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <select name="department" className={inputCls("department")} value={formData.department} onChange={handleChange}>
@@ -201,7 +201,7 @@ export default function ContactFormPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Buying Role Matrix</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Buying Role</label>
                             <div className="relative group">
                                 <FiSettings className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <select name="buyingRole" className={inputCls("buyingRole")} value={formData.buyingRole} onChange={handleChange}>
@@ -216,14 +216,14 @@ export default function ContactFormPage() {
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <button type="button" onClick={() => navigate(-1)}
                         className="flex-1 py-4 bg-gray-100 text-gray-600 font-black rounded-2xl hover:bg-gray-200 transition-all text-sm uppercase tracking-widest">
-                        Abort
+                        Cancel
                     </button>
                     <button type="submit" disabled={loading}
                         className="flex-[2] flex items-center justify-center gap-3 py-4 bg-green-600 text-white font-black rounded-2xl hover:bg-green-700 active:scale-95 transition-all text-sm uppercase tracking-widest shadow-xl shadow-green-500/20 disabled:opacity-50">
                         {loading ? (
                             <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                         ) : (
-                            <><FiSave size={18} /> Synchronize Record</>
+                            <><FiSave size={18} /> {isEdit ? "Save Changes" : "Save Contact"}</>
                         )}
                     </button>
                 </div>

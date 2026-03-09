@@ -4,11 +4,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
-
-// Dynamic CORS configuration
+// ── Dynamic CORS configuration ────────────────────────────────────────────────
 const allowedOrigins = [
     process.env.FRONTEND_URL,
     ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : [])
@@ -19,6 +20,11 @@ app.use(cors({
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
 
+        // Allow all localhost origins for development
+        if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
+            return callback(null, true);
+        }
+
         if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
             callback(null, true);
         } else {
@@ -27,9 +33,26 @@ app.use(cors({
         }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "cache-control", "Pragma", "pragma", "Expires", "expires", "Accept", "X-Requested-With"],
     credentials: true
 }));
+
+/* ================= SECURITY ================= */
+app.use(helmet());
+
+// Rate limiting for login/auth
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Too many login attempts, please try again after 15 minutes"
+});
+app.use("/api/auth/login", authLimiter);
+
+// ── Origins handled above ──
+
+// ── Placeholder for relocation ──
 
 app.use(express.json());
 
@@ -59,6 +82,9 @@ app.use("/api/activities", require("./routes/activityRoutes"));
 app.use("/api/automation", require("./routes/automationRoutes"));
 app.use("/api/inquiries", require("./routes/inquiryRoutes"));
 app.use("/api/messages", require("./routes/messageRoutes"));
+app.use("/api/tasks", require("./routes/taskRoutes"));
+app.use("/api/pipelines", require("./routes/pipelineRoutes"));
+app.use("/api/lead-sources", require("./routes/leadSourceRoutes"));
 
 app.get("/", (req, res) => {
     res.json({

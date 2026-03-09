@@ -31,7 +31,8 @@ function Branches() {
         try {
             const url = `${apiBase}?search=${search}${isSuperAdmin && selectedCompany ? `&companyId=${selectedCompany}` : ""}`;
             const res = await API.get(url);
-            setBranches(Array.isArray(res.data) ? res.data : []);
+            const data = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+            setBranches(data);
         } catch {
             setBranches([]);
         } finally {
@@ -43,7 +44,8 @@ function Branches() {
         if (!isSuperAdmin) return;
         try {
             const res = await API.get("/super-admin/companies");
-            setCompanies(res.data?.companies || []);
+            const companyList = res.data?.data || res.data?.companies || [];
+            setCompanies(companyList);
         } catch { /* silent */ }
     };
 
@@ -51,7 +53,7 @@ function Branches() {
         if (!window.confirm("Delete this branch?")) return;
         try {
             await API.delete(`${apiBase}/${id}`);
-            toast.success("Branch deleted successfully.");
+            toast.success("Branch deleted.");
             fetchBranches();
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to delete branch.");
@@ -65,9 +67,9 @@ function Branches() {
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Branch Management</h1>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Branches</h1>
                     <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">
-                        Configure and manage regional branches.
+                        Manage your company's branches here.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
@@ -107,7 +109,7 @@ function Branches() {
             {loading ? (
                 <div className="h-[400px] bg-white rounded-[2rem] border border-gray-100 flex flex-col items-center justify-center space-y-4 shadow-sm">
                     <div className="w-12 h-12 border-[6px] border-green-50 border-t-green-500 rounded-full animate-spin" />
-                    <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Loading Branches...</p>
+                    <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Loading...</p>
                 </div>
             ) : (
                 <BranchTable

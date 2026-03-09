@@ -12,15 +12,18 @@ const { runAutomation } = require("../utils/automationEngine");
 // ============================
 exports.createCustomer = async (req, res) => {
     try {
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
         const data = await Customer.create({
             ...req.body,
             companyId: req.user.companyId,
             branchId: req.user.branchId || null,
             createdBy: req.user.id
         });
-        res.json(data);
+        res.status(201).json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("CREATE CUSTOMER ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 exports.getCustomers = async (req, res) => {
@@ -34,7 +37,7 @@ exports.getCustomers = async (req, res) => {
             .skip((page - 1) * limit)
             .sort({ createdAt: -1 });
         const total = await Customer.countDocuments(query);
-        res.json({ data, total, pages: Math.ceil(total / limit), currentPage: page });
+        res.json({ success: true, data, total, pages: Math.ceil(total / limit), currentPage: page });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -49,7 +52,7 @@ exports.updateCustomer = async (req, res) => {
             req.body,
             { new: true }
         );
-        res.json(updated);
+        res.json({ success: true, data: updated });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -62,7 +65,7 @@ exports.deleteCustomer = async (req, res) => {
 
         await Customer.findOneAndDelete(query);
         await Contact.deleteMany({ customerId: id, companyId: req.user.companyId });
-        res.json({ message: "Customer and its contacts deleted successfully" });
+        res.json({ success: true, message: "Customer and its contacts deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -87,16 +90,19 @@ exports.getCustomer360 = async (req, res) => {
         ]);
 
         res.json({
-            customer,
-            contacts,
-            deals,
-            activities: {
-                calls,
-                meetings,
-                todos,
-                notes
-            },
-            revenue: deals.filter(d => d.stage === 'Closed Won').reduce((sum, d) => sum + (d.value || 0), 0)
+            success: true,
+            data: {
+                customer,
+                contacts,
+                deals,
+                activities: {
+                    calls,
+                    meetings,
+                    todos,
+                    notes
+                },
+                revenue: deals.filter(d => d.stage === 'Closed Won').reduce((sum, d) => sum + (d.value || 0), 0)
+            }
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -114,9 +120,10 @@ exports.createContact = async (req, res) => {
             branchId: req.user.branchId || null,
             createdBy: req.user.id
         });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("CREATE CONTACT ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 exports.getContacts = async (req, res) => {
@@ -132,7 +139,7 @@ exports.getContacts = async (req, res) => {
             .skip((page - 1) * limit)
             .sort({ createdAt: -1 });
         const total = await Contact.countDocuments(query);
-        res.json({ data, total, pages: Math.ceil(total / limit), currentPage: page });
+        res.json({ success: true, data, total, pages: Math.ceil(total / limit), currentPage: page });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -147,7 +154,7 @@ exports.updateContact = async (req, res) => {
             req.body,
             { new: true }
         );
-        res.json(updated);
+        res.json({ success: true, data: updated });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -158,9 +165,10 @@ exports.deleteContact = async (req, res) => {
         if (req.user.role === "branch_manager" || req.user.role === "sales") query.branchId = req.user.branchId;
 
         await Contact.findOneAndDelete(query);
-        res.json({ message: "Contact deleted successfully" });
+        res.json({ success: true, message: "Contact deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("DELETE CONTACT ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -176,9 +184,10 @@ exports.createCall = async (req, res) => {
             createdBy: req.user.id,
             assignedTo: req.body.assignedTo || req.user.id
         });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("CREATE CALL ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 exports.getCalls = async (req, res) => {
@@ -187,9 +196,10 @@ exports.getCalls = async (req, res) => {
         if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
         if (req.user.role === "sales") query.assignedTo = req.user.id;
         const data = await Call.find(query).sort({ startDate: -1 });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("GET CALLS ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 exports.updateCall = async (req, res) => {
@@ -202,9 +212,10 @@ exports.updateCall = async (req, res) => {
             req.body,
             { new: true }
         );
-        res.json(updated);
+        res.json({ success: true, data: updated });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("UPDATE CALL ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 exports.deleteCall = async (req, res) => {
@@ -212,10 +223,12 @@ exports.deleteCall = async (req, res) => {
         const query = { _id: req.params.id, companyId: req.user.companyId };
         if (req.user.role === "branch_manager" || req.user.role === "sales") query.branchId = req.user.branchId;
 
-        await Call.findOneAndDelete(query);
-        res.json({ message: "Call deleted" });
+        const deleted = await Call.findOneAndDelete(query);
+        if (!deleted) return res.status(404).json({ success: false, message: "Call not found" });
+        res.json({ success: true, message: "Call deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("DELETE CALL ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -235,7 +248,7 @@ exports.createMeeting = async (req, res) => {
         // Run Automation
         await runAutomation("meeting_scheduled", req.user.companyId, { record: data, userId: req.user.id });
 
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -246,7 +259,7 @@ exports.getMeetings = async (req, res) => {
         if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
         if (req.user.role === "sales") query.assignedTo = req.user.id;
         const data = await Meeting.find(query).sort({ startDate: -1 });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -261,9 +274,10 @@ exports.updateMeeting = async (req, res) => {
             req.body,
             { new: true }
         );
-        res.json(updated);
+        res.json({ success: true, data: updated });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("UPDATE MEETING ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 exports.deleteMeeting = async (req, res) => {
@@ -271,10 +285,12 @@ exports.deleteMeeting = async (req, res) => {
         const query = { _id: req.params.id, companyId: req.user.companyId };
         if (req.user.role === "branch_manager" || req.user.role === "sales") query.branchId = req.user.branchId;
 
-        await Meeting.findOneAndDelete(query);
-        res.json({ message: "Meeting deleted" });
+        const deleted = await Meeting.findOneAndDelete(query);
+        if (!deleted) return res.status(404).json({ success: false, message: "Meeting not found" });
+        res.json({ success: true, message: "Meeting deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("DELETE MEETING ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -290,7 +306,7 @@ exports.createTodo = async (req, res) => {
             createdBy: req.user.id,
             assignedTo: req.body.assignedTo || req.user.id
         });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -301,7 +317,7 @@ exports.getTodos = async (req, res) => {
         if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
         if (req.user.role === "sales") query.assignedTo = req.user.id;
         const data = await Todo.find(query).sort({ dueDate: 1 });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -316,9 +332,10 @@ exports.updateTodo = async (req, res) => {
             req.body,
             { new: true }
         );
-        res.json(updated);
+        res.json({ success: true, data: updated });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("UPDATE TODO ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 exports.deleteTodo = async (req, res) => {
@@ -326,10 +343,12 @@ exports.deleteTodo = async (req, res) => {
         const query = { _id: req.params.id, companyId: req.user.companyId };
         if (req.user.role === "branch_manager" || req.user.role === "sales") query.branchId = req.user.branchId;
 
-        await Todo.findOneAndDelete(query);
-        res.json({ message: "Todo deleted" });
+        const deleted = await Todo.findOneAndDelete(query);
+        if (!deleted) return res.status(404).json({ success: false, message: "Todo not found" });
+        res.json({ success: true, message: "Todo deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("DELETE TODO ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -344,7 +363,7 @@ exports.createNote = async (req, res) => {
             branchId: req.user.branchId || null,
             createdBy: req.user.id
         });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -362,7 +381,7 @@ exports.getNotes = async (req, res) => {
         if (contactId) query.contactId = contactId;
 
         const data = await Note.find(query).sort({ createdAt: -1 });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -374,7 +393,7 @@ exports.deleteNote = async (req, res) => {
         if (req.user.role === "branch_manager" || req.user.role === "sales") query.branchId = req.user.branchId;
 
         await Note.findOneAndDelete(query);
-        res.json({ message: "Note deleted" });
+        res.json({ success: true, message: "Note deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

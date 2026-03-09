@@ -2,21 +2,25 @@ import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
     FiLayout, FiTarget, FiUserCheck, FiUser, FiPhone, FiCalendar,
-    FiCheckSquare, FiPieChart, FiLogOut, FiChevronLeft, FiChevronRight, FiLayers
+    FiCheckSquare, FiPieChart, FiLogOut, FiChevronLeft, FiChevronRight, FiLayers,
+    FiInbox, FiActivity, FiBarChart2
 } from "react-icons/fi";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { AuthContext } from "../../context/AuthContext";
 
 const BRANCH_MANAGER_MENU = [
     { name: "Dashboard", icon: <FiLayout />, path: "/branch/dashboard" },
-    { name: "Inquiries", icon: <FiLayers />, path: "/branch/inquiries" },
+    { name: "Analytics", icon: <FiBarChart2 />, path: "/branch/analytics" },
+    { name: "Inquiries", icon: <FiInbox />, path: "/branch/inquiries" },
     { name: "Leads", icon: <FiTarget />, path: "/branch/leads" },
+    { name: "Deals", icon: <FaIndianRupeeSign />, path: "/branch/deals" },
+    { name: "Pipeline", icon: <FiLayers />, path: "/branch/pipeline" },
+    { name: "Tasks", icon: <FiCheckSquare />, path: "/branch/tasks" },
+    { name: "Activities", icon: <FiActivity />, path: "/branch/activities" },
     { name: "Customers", icon: <FiUserCheck />, path: "/branch/customers" },
     { name: "Contacts", icon: <FiUser />, path: "/branch/contacts" },
-    { name: "Deals", icon: <FaIndianRupeeSign />, path: "/branch/deals" },
     { name: "Calls", icon: <FiPhone />, path: "/branch/calls" },
     { name: "Meetings", icon: <FiCalendar />, path: "/branch/meetings" },
-    { name: "Tasks", icon: <FiCheckSquare />, path: "/branch/todos" },
     { name: "Reports", icon: <FiPieChart />, path: "/branch/reports" },
 ];
 
@@ -60,12 +64,6 @@ const BranchManagerSidebar = ({ isOpen, onClose }) => {
                         );
                     })}
                 </nav>
-                <div className="p-4 border-t border-green-100">
-                    <button onClick={logout} className="w-full flex items-center px-4 py-3 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all font-bold text-sm">
-                        <span className="text-xl rotate-180"><FiLogOut /></span>
-                        {!collapsed && <span className="ml-4">Sign Out</span>}
-                    </button>
-                </div>
             </aside>
         </>
     );

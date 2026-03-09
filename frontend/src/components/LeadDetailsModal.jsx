@@ -22,7 +22,7 @@ const LeadDetailsModal = ({ isOpen, onClose, lead }) => {
                             <h2 className="text-4xl font-black text-gray-900 tracking-tighter">{lead.name}</h2>
                             <span className="px-4 py-1.5 bg-green-100 text-green-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-sm">{lead.status}</span>
                         </div>
-                        <p className="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px] mt-2 opacity-80">{lead.companyName || "Independent Enterprise Objective"}</p>
+                        <p className="text-gray-400 font-black uppercase tracking-[0.3em] text-[10px] mt-2 opacity-80">{lead.companyName || "Individual"}</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <button
@@ -43,30 +43,30 @@ const LeadDetailsModal = ({ isOpen, onClose, lead }) => {
                     <div className="w-full lg:w-1/3 p-10 bg-gray-50/30 border-r border-gray-100 overflow-y-auto hidden lg:block">
                         <h3 className="font-black text-gray-900 uppercase tracking-widest text-[11px] mb-10 flex items-center gap-3">
                             <FiInfo className="text-green-500" />
-                            Intelligence Matrix
+                            Lead Info
                         </h3>
                         <div className="space-y-8">
                             <div className="group">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Communication Link</p>
-                                <p className="text-sm font-black text-gray-700 mt-3">{lead.phone || "No terminal link"}</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Phone</p>
+                                <p className="text-sm font-black text-gray-700 mt-3">{lead.phone || "No phone"}</p>
                             </div>
                             <div className="group">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Vector Identity</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Email</p>
                                 <p className="text-sm font-black text-gray-700 mt-3">{lead.email}</p>
                             </div>
                             <div className="group">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Jurisdictional Overseer</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Assigned To</p>
                                 <p className="text-sm font-black text-gray-700 mt-3 flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                    {lead.assignedTo?.name || "Autonomous Operation"}
+                                    {lead.assignedTo?.name || "Unassigned"}
                                 </p>
                             </div>
                             <div className="group">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Projected Valuation</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Value</p>
                                 <p className="text-lg font-black text-green-600 mt-3">₹{Number(lead.value || 0).toLocaleString('en-IN')}</p>
                             </div>
                             <div className="group">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Inception Timestamp</p>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none group-hover:text-green-500 transition-colors">Created At</p>
                                 <p className="text-sm font-black text-gray-500 mt-3">{new Date(lead.createdAt).toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                             </div>
                         </div>
@@ -81,14 +81,14 @@ const LeadDetailsModal = ({ isOpen, onClose, lead }) => {
                                 className={`py-6 font-black uppercase tracking-[0.2em] text-[10px] border-b-2 transition-all flex items-center gap-3 ${activeTab === 'timeline' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
                             >
                                 <FiClock size={16} />
-                                Activity Flux
+                                Activity
                             </button>
                             <button
                                 onClick={() => setActiveTab("notes")}
                                 className={`py-6 font-black uppercase tracking-[0.2em] text-[10px] border-b-2 transition-all flex items-center gap-3 ${activeTab === 'notes' ? 'border-green-500 text-green-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}
                             >
                                 <FiFileText size={16} />
-                                Intelligence Logs
+                                Notes
                             </button>
                         </div>
 

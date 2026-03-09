@@ -21,7 +21,8 @@ const LeadAssignModal = ({ isOpen, onClose, lead, onAssigned }) => {
         setFetching(true);
         try {
             const res = await API.get("/users");
-            setUsers(Array.isArray(res.data) ? res.data : []);
+            const data = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+            setUsers(data);
         } catch (err) {
             console.error("Failed to fetch users:", err);
         } finally {
@@ -31,13 +32,13 @@ const LeadAssignModal = ({ isOpen, onClose, lead, onAssigned }) => {
 
     const handleAssign = async () => {
         if (!selectedUser) {
-            toast.warning("Please select a tactical owner.");
+            toast.warning("Please select a user.");
             return;
         }
         setLoading(true);
         try {
             await API.put(`/leads/${lead._id}`, { assignedTo: selectedUser });
-            toast.success("Ownership transferred successfully.");
+            toast.success("Lead assigned.");
             onAssigned();
             onClose();
         } catch (err) {
@@ -58,8 +59,8 @@ const LeadAssignModal = ({ isOpen, onClose, lead, onAssigned }) => {
                             <FiUserPlus size={24} />
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-gray-900 tracking-tight">Assign Ownership</h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Re-route Tactical Lead Node</p>
+                            <h3 className="text-xl font-black text-gray-900 tracking-tight">Assign Lead</h3>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Assign this lead to a user.</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white text-gray-400 hover:text-red-500 rounded-xl transition-all shadow-sm">
@@ -74,12 +75,12 @@ const LeadAssignModal = ({ isOpen, onClose, lead, onAssigned }) => {
                         </div>
                         <div>
                             <p className="text-xs font-black text-gray-900">{lead?.name}</p>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{lead?.companyName || "Independent Account"}</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{lead?.companyName || "No Company"}</p>
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Select Tactical Owner</label>
+                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Select User</label>
                         <div className="relative group">
                             <FiShield className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                             <select
@@ -107,7 +108,7 @@ const LeadAssignModal = ({ isOpen, onClose, lead, onAssigned }) => {
                         disabled={loading || fetching}
                         className="flex-[2] flex items-center justify-center gap-2 py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 active:scale-95 transition-all text-xs uppercase tracking-widest shadow-xl shadow-blue-500/20 disabled:opacity-50"
                     >
-                        {loading ? <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <><FiCheck size={18} /> Confirm Route</>}
+                        {loading ? <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" /> : <><FiCheck size={18} /> Confirm</>}
                     </button>
                 </div>
             </div>

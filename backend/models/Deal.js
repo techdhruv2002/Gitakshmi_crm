@@ -12,9 +12,19 @@ const dealSchema = new mongoose.Schema(
       default: 0
     },
 
-    stage: {
+    stage: { // Legacy Support
       type: String,
       default: "New"
+    },
+
+    pipelineId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Pipeline"
+    },
+
+    stageId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Stage"
     },
 
     lostReason: {
@@ -67,5 +77,10 @@ const dealSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+dealSchema.index({ companyId: 1 });
+dealSchema.index({ assignedTo: 1 });
+dealSchema.index({ leadId: 1 });
+dealSchema.index({ customerId: 1 });
 
 module.exports = mongoose.model("Deal", dealSchema);

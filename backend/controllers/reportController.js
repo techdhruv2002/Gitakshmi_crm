@@ -5,7 +5,7 @@ const Company = require("../models/Company");
 
 exports.getRevenueByMonth = async (req, res) => {
     try {
-        console.log(`Report Access: role=${req.user.role}, companyId=${req.user.companyId}, path=revenue`);
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
         const match = { stage: "Closed Won" };
         if (req.user.role !== "super_admin") {
             match.companyId = req.user.companyId;
@@ -22,15 +22,16 @@ exports.getRevenueByMonth = async (req, res) => {
             },
             { $sort: { "_id": 1 } }
         ]);
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("GET REVENUE BY MONTH ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
 exports.getDealsByStage = async (req, res) => {
     try {
-        console.log(`Report Access: role=${req.user.role}, path=deals-by-stage`);
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
         const match = {};
         if (req.user.role !== "super_admin") {
             match.companyId = req.user.companyId;
@@ -41,15 +42,16 @@ exports.getDealsByStage = async (req, res) => {
             { $match: match },
             { $group: { _id: "$stage", count: { $sum: 1 } } }
         ]);
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("GET DEALS BY STAGE ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
 exports.getLeadConversions = async (req, res) => {
     try {
-        console.log(`Report Access: role=${req.user.role}, path=lead-conversions`);
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
         let filter = {};
         if (req.user.role !== "super_admin") {
             filter.companyId = req.user.companyId;
@@ -58,14 +60,16 @@ exports.getLeadConversions = async (req, res) => {
 
         const total = await Lead.countDocuments(filter);
         const converted = await Lead.countDocuments({ ...filter, isConverted: true });
-        res.json({ total, converted });
+        res.json({ success: true, data: { total, converted } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("GET LEAD CONVERSIONS ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
 exports.getUserPerformance = async (req, res) => {
     try {
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
         const match = { stage: "Closed Won" };
         if (req.user.role !== "super_admin") {
             match.companyId = req.user.companyId;
@@ -83,14 +87,16 @@ exports.getUserPerformance = async (req, res) => {
             }
         ]);
         await User.populate(data, { path: "_id", select: "name" });
-        res.json(data);
+        res.json({ success: true, data });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("GET USER PERFORMANCE ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
 exports.getDealForecasting = async (req, res) => {
     try {
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
         const match = {};
         if (req.user.role !== "super_admin") {
             match.companyId = req.user.companyId;
@@ -108,7 +114,6 @@ exports.getDealForecasting = async (req, res) => {
             }
         ]);
 
-        // Calculate expected revenue weighted by stage probability
         const probabilities = {
             "New": 0.1,
             "Qualified": 0.3,
@@ -124,8 +129,9 @@ exports.getDealForecasting = async (req, res) => {
             actualValue: group.totalValue
         }));
 
-        res.json(forecast);
+        res.json({ success: true, data: forecast });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("GET DEAL FORECASTING ERROR:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };

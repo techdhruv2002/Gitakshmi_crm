@@ -84,7 +84,8 @@ export default function DealFormPage() {
         (async () => {
             try {
                 const res = await API.get(apiBase);
-                const all = Array.isArray(res.data) ? res.data : [];
+                const resData = res.data?.data || res.data;
+                const all = Array.isArray(resData) ? resData : [];
                 const deal = all.find(d => d._id === id);
                 if (deal) {
                     setFormData({

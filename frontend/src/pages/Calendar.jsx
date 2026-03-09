@@ -70,8 +70,8 @@ const CalendarPage = () => {
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">CRM Master Agenda</h1>
-                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Unified timeline of calls, meetings, and upcoming engagements.</p>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">My Calendar</h1>
+                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">See all your calls, meetings, and tasks in one place.</p>
                 </div>
                 <div className="flex items-center gap-2 p-1.5 bg-gray-50 rounded-2xl border border-gray-100 shadow-inner">
                     <button className="px-5 py-2.5 bg-white text-green-600 font-black text-xs uppercase tracking-widest rounded-xl shadow-sm border border-gray-100">Upcoming</button>
@@ -92,11 +92,11 @@ const CalendarPage = () => {
 
                         // Theme colors for event types
                         const typeTheme = isCall ? {
-                            border: 'border-l-green-500', bg: 'bg-green-50', text: 'text-green-500', icon: <FiPhone size={18} />, label: 'Voice Call'
+                            border: 'border-l-green-500', bg: 'bg-green-50', text: 'text-green-500', icon: <FiPhone size={18} />, label: 'Call'
                         } : isTask ? {
-                            border: 'border-l-green-500', bg: 'bg-green-50', text: 'text-green-600', icon: <FiCheckCircle size={18} />, label: 'Internal Task'
+                            border: 'border-l-green-500', bg: 'bg-green-50', text: 'text-green-600', icon: <FiCheckCircle size={18} />, label: 'Task'
                         } : {
-                            border: 'border-l-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-600', icon: <FiVideo size={18} />, label: 'Consultation'
+                            border: 'border-l-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-600', icon: <FiVideo size={18} />, label: 'Meeting'
                         };
 
                         return (
@@ -125,7 +125,7 @@ const CalendarPage = () => {
                                             </div>
                                         </div>
                                         <h3 className="text-2xl font-black text-gray-900 mb-2 leading-tight pr-8">{event.title}</h3>
-                                        <p className="text-sm text-gray-500 font-medium mb-5 line-clamp-2 md:line-clamp-none">{event.description || "Agenda points not specified."}</p>
+                                        <p className="text-sm text-gray-500 font-medium mb-5 line-clamp-2 md:line-clamp-none">{event.description || "No details provided."}</p>
 
                                         {event.location && (
                                             <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-gray-400 pt-5 border-t border-gray-50">
@@ -143,7 +143,7 @@ const CalendarPage = () => {
                 {events.length === 0 && !loading && (
                     <div className="py-32 text-center flex flex-col items-center justify-center relative z-10">
                         <div className="w-24 h-24 bg-gray-50 border border-gray-100 rounded-[2.5rem] flex items-center justify-center text-gray-300 text-4xl mb-6 shadow-inner"><FiCalendar /></div>
-                        <p className="text-gray-400 font-black tracking-[0.2em] uppercase text-xs">Your agenda is clear</p>
+                        <p className="text-gray-400 font-black tracking-[0.2em] uppercase text-xs">No activities scheduled</p>
                     </div>
                 )}
             </div>

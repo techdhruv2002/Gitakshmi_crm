@@ -37,8 +37,9 @@ exports.createUser = async (req, res) => {
     });
 
     res.json({
+      success: true,
       message: "User Created Successfully",
-      user: newUser
+      data: newUser
     });
 
   } catch (error) {
@@ -50,10 +51,12 @@ exports.createUser = async (req, res) => {
 /* ================= GET USERS ================= */
 exports.getUsers = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Unauthorized: User not found in request" });
+    }
+
     const { search, role } = req.query;
-    let filter = {
-      companyId: req.user.companyId
-    };
+    let filter = {};
 
     if (search) {
       filter.$or = [
@@ -61,21 +64,22 @@ exports.getUsers = async (req, res) => {
         { email: { $regex: search, $options: "i" } }
       ];
     }
+    if (role) filter.role = role;
 
-    if (role) {
-      filter.role = role;
+    if (req.user.role !== "super_admin") {
+      filter.companyId = req.user.companyId;
+      if (req.user.role === "branch_manager") {
+        filter.branchId = req.user.branchId;
+      }
     }
 
-    if (req.user.role === "branch_manager") {
-      filter.branchId = req.user.branchId;
-    }
+    const users = await User.find(filter).select("-password").sort({ createdAt: -1 });
 
-    const users = await User.find(filter).select("-password");
-
-    res.json(users);
+    res.json({ success: true, data: users });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("GET USERS ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -83,15 +87,19 @@ exports.getUsers = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
+    const mongoose = require("mongoose");
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid User ID format" });
+    }
+
     const query = { _id: id, companyId: req.user.companyId };
     if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
 
     const updateData = { ...req.body };
-    // ✅ Hash password if it's being updated
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     } else {
-      delete updateData.password; // Never overwrite with empty string
+      delete updateData.password;
     }
 
     const user = await User.findOneAndUpdate(
@@ -100,26 +108,38 @@ exports.updateUser = async (req, res) => {
       { new: true }
     ).select("-password");
 
-    if (!user) return res.status(404).json({ message: "User not found in your company" });
-    res.json(user);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.json({ success: true, data: user });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("UPDATE USER ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 /* ================= DELETE USER ================= */
 exports.deleteUser = async (req, res) => {
   try {
-    if (req.user.role !== "company_admin" && req.user.role !== "branch_manager") {
-      return res.status(403).json({ message: "Access Denied" });
-    }
     const { id } = req.params;
+    const mongoose = require("mongoose");
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid ID format" });
+    }
+
+    if (req.user.role !== "company_admin" && req.user.role !== "branch_manager") {
+      return res.status(403).json({ success: false, message: "Access Denied" });
+    }
+
     const query = { _id: id, companyId: req.user.companyId };
     if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
 
-    await User.findOneAndDelete(query);
-    res.json({ message: "User identity purged" });
+    const deletedUser = await User.findOneAndDelete(query);
+    if (!deletedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({ success: true, message: "User identity purged successfully" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("DELETE USER ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

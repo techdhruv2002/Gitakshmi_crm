@@ -47,7 +47,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen }) => {
         { name: "Meetings", icon: <FiCalendar />, path: "/meetings", roles: ["branch_manager", "sales"] },
         { name: "Tasks", icon: <FiCheckSquare />, path: "/todos", roles: ["branch_manager", "sales"] },
         { name: "Calendar", icon: <FiCalendar />, path: "/calendar", roles: ["branch_manager", "sales"] },
-        { name: "Reports", icon: <FiPieChart />, path: "/reports", roles: ["super_admin", "company_admin", "branch_manager"], labelMap: { "super_admin": "Platform Reports" } },
+        { name: "Reports", icon: <FiPieChart />, path: "/reports", roles: ["super_admin", "company_admin", "branch_manager"] },
         { name: "Automation", icon: <FiCpu />, path: "/automation", roles: ["super_admin", "company_admin"] },
         { name: "Settings", icon: <FiSettings />, path: "/settings", roles: ["super_admin", "company_admin", "branch_manager"] },
     ];
@@ -75,7 +75,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen }) => {
             <div className="flex items-center justify-between h-16 px-6 border-b border-green-100">
                 {!isCollapsed && (
                     <span className="text-xl font-black bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent tracking-tighter">
-                        CRM PRO
+                        My CRM
                     </span>
                 )}
                 <button
@@ -121,7 +121,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, isMobileOpen }) => {
                 >
                     <span className="text-xl rotate-180"><FiLogOut /></span>
                     {!isCollapsed && (
-                        <span className="ml-4">Term. Session</span>
+                        <span className="ml-4">Log Out</span>
                     )}
                     {isCollapsed && (
                         <div className="absolute left-full ml-4 px-3 py-2 bg-red-600 text-white text-xs font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap z-50 shadow-xl">

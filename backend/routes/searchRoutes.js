@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const searchController = require("../controllers/searchController");
-const authMiddleware = require("../middleware/authMiddleware");
+const auth = require("../middleware/auth");
+const checkCompanyAccess = require("../middleware/checkCompanyAccess");
 
-router.get("/", authMiddleware, searchController.globalSearch);
+router.get("/", auth, checkCompanyAccess, searchController.globalSearch);
 
 module.exports = router;

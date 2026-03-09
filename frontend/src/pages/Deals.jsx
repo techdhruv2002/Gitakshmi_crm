@@ -23,7 +23,8 @@ function Deals() {
         try {
             const url = `${apiBase}?stage=${filters.stage}${isSuperAdmin ? `&companyId=${filters.companyId}` : ""}`;
             const res = await API.get(url);
-            setDeals(res.data);
+            const dealsData = res.data?.data || (Array.isArray(res.data) ? res.data : []);
+            setDeals(dealsData);
         } catch (err) {
             console.error(err);
         } finally {
@@ -42,10 +43,10 @@ function Deals() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Confirm purge of capital deal? Lost value will be recorded in logs.")) {
+        if (window.confirm("Are you sure you want to delete this deal?")) {
             try {
                 await API.delete(`${apiBase}/${id}`);
-                toast.success("Deal purged.");
+                toast.success("Deal deleted.");
                 fetchDeals();
             } catch (err) {
                 toast.error("Failed to delete deal.");
@@ -66,8 +67,8 @@ function Deals() {
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm transition-all hover:shadow-xl hover:shadow-green-500/5">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Active Pipeline</h1>
-                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Capital Yield Visualization</p>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">My Deals</h1>
+                    <p className="text-gray-500 font-bold text-[10px] uppercase tracking-widest mt-1 opacity-75">Track your deals and progress.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
                     <button
@@ -75,7 +76,7 @@ function Deals() {
                         className="flex items-center gap-3 px-6 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 hover:bg-green-600 hover:scale-105 active:scale-95 transition-all text-xs uppercase tracking-widest"
                     >
                         <FiPlus size={20} />
-                        Initialize Deal
+                        New Deal
                     </button>
                 </div>
             </div>
@@ -83,7 +84,7 @@ function Deals() {
             {loading ? (
                 <div className="h-[400px] flex flex-col items-center justify-center space-y-4">
                     <div className="w-12 h-12 border-[6px] border-green-50 border-t-green-500 rounded-full animate-spin"></div>
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[9px]">Scanning Value Nodes...</p>
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[9px]">Loading...</p>
                 </div>
             ) : (
                 <div className="overflow-x-auto overflow-y-hidden">

@@ -15,9 +15,11 @@ const ActivityTimeline = ({ leadId, customerId, dealId }) => {
             if (dealId) url += `dealId=${dealId}&`;
 
             const res = await API.get(url);
-            setActivities(res.data);
+            const rawData = res.data?.data || res.data;
+            setActivities(Array.isArray(rawData) ? rawData : []);
         } catch (err) {
             console.error("Timeline error:", err);
+            setActivities([]);
         } finally {
             setLoading(false);
         }
@@ -40,20 +42,20 @@ const ActivityTimeline = ({ leadId, customerId, dealId }) => {
         }
     };
 
-    if (loading) return <div className="p-10 text-center animate-pulse text-gray-400 font-black uppercase tracking-widest text-[10px]">Reconstructing History Protocol...</div>;
+    if (loading) return <div className="p-10 text-center animate-pulse text-gray-400 font-black uppercase tracking-widest text-[10px]">Loading activity...</div>;
 
-    if (activities.length === 0) return (
+    if (!Array.isArray(activities) || activities.length === 0) return (
         <div className="p-16 text-center bg-gray-50/50 rounded-[2.5rem] border-2 border-dashed border-gray-100">
             <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-gray-200 mx-auto mb-4 shadow-sm border border-gray-50">
                 <FiClock size={32} />
             </div>
-            <p className="text-gray-400 font-black text-[10px] uppercase tracking-widest">No activity recorded in this cluster.</p>
+            <p className="text-gray-400 font-black text-[10px] uppercase tracking-widest">No activity found.</p>
         </div>
     );
 
     return (
         <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-gradient-to-b before:from-gray-200 before:via-gray-50 before:to-transparent">
-            {activities.map((act, i) => (
+            {Array.isArray(activities) && activities.map((act, i) => (
                 <div key={i} className="relative flex items-center gap-6 group">
                     {/* Icon */}
                     <div className="relative flex items-center justify-center w-10 h-10 bg-white rounded-xl border border-gray-100 shadow-sm transition-all group-hover:scale-110 z-10 group-hover:shadow-lg group-hover:border-green-100">
@@ -70,7 +72,7 @@ const ActivityTimeline = ({ leadId, customerId, dealId }) => {
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-1 h-3 bg-gray-200 rounded-full group-hover:bg-green-500 transition-colors"></div>
-                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Context ID: {act.id.slice(-8)}</p>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">ID: {act.id.slice(-8)}</p>
                         </div>
                     </div>
                 </div>

@@ -1,31 +1,34 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../middleware/authMiddleware");
-const superAdmin = require("../middleware/superAdmin");
+const auth = require("../middleware/auth");
+const requireRole = require("../middleware/requireRole");
 const controller = require("../controllers/superAdminController");
 
-router.get("/companies", auth, superAdmin, controller.getAllCompanies);
-router.post("/companies", auth, superAdmin, controller.createCompany);
-router.put("/companies/:id", auth, superAdmin, controller.updateCompany);
-router.delete("/companies/:id", auth, superAdmin, controller.deleteCompany);
+// All routes in this file require super_admin role
+router.use(auth, requireRole("super_admin"));
 
-router.get("/branches", auth, superAdmin, controller.getAllBranches);
-router.post("/branches", auth, superAdmin, controller.createBranch);
-router.put("/branches/:id", auth, superAdmin, controller.updateBranch);
-router.delete("/branches/:id", auth, superAdmin, controller.deleteBranch);
+router.get("/companies", controller.getAllCompanies);
+router.post("/companies", controller.createCompany);
+router.put("/companies/:id", controller.updateCompany);
+router.delete("/companies/:id", controller.deleteCompany);
 
-router.get("/users", auth, superAdmin, controller.getAllUsers);
-router.post("/users", auth, superAdmin, controller.createUser);
-router.put("/users/:id", auth, superAdmin, controller.updateUser);
-router.delete("/users/:id", auth, superAdmin, controller.deleteUser);
+router.get("/branches", controller.getAllBranches);
+router.post("/branches", controller.createBranch);
+router.put("/branches/:id", controller.updateBranch);
+router.delete("/branches/:id", controller.deleteBranch);
 
-router.get("/leads", auth, superAdmin, controller.getAllLeads);
-router.delete("/leads/:id", auth, superAdmin, controller.deleteLead);
+router.get("/users", controller.getAllUsers);
+router.post("/users", controller.createUser);
+router.put("/users/:id", controller.updateUser);
+router.delete("/users/:id", controller.deleteUser);
 
-router.get("/deals", auth, superAdmin, controller.getAllDeals);
-router.put("/deals/:id", auth, superAdmin, controller.updateDeal);
-router.delete("/deals/:id", auth, superAdmin, controller.deleteDeal);
+router.get("/leads", controller.getAllLeads);
+router.delete("/leads/:id", controller.deleteLead);
 
-router.get("/stats", auth, superAdmin, controller.getStats);
+router.get("/deals", controller.getAllDeals);
+router.put("/deals/:id", controller.updateDeal);
+router.delete("/deals/:id", controller.deleteDeal);
+
+router.get("/stats", controller.getStats);
 
 module.exports = router;

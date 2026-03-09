@@ -1,7 +1,7 @@
 import React from "react";
 import { FiCheckCircle } from "react-icons/fi";
 
-import logo from "../../assets/logo.png";
+import logo from "../../assets/tech logo white.png";
 
 const LeftSection = () => {
     return (
@@ -25,7 +25,7 @@ const LeftSection = () => {
             {/* Content Container */}
             <div className="relative z-10 w-full max-w-xl">
                 {/* Logo mark */}
-                <div className="mb-12 bg-white/95 px-8 py-4 rounded-[1.5rem] inline-block shadow-2xl backdrop-blur-sm border border-white/20">
+                <div className="mb-12 inline-block">
                     <img src={logo} alt="Gitakshmi Technologies" className="w-64 lg:w-72 h-auto object-contain" />
                 </div>
 
@@ -33,11 +33,10 @@ const LeftSection = () => {
                 <div className="space-y-8">
                     <div>
                         <h1 className="text-5xl xl:text-6xl font-black text-white tracking-tighter leading-[1.05]">
-                            Smart CRM &<br />
-                            <span className="text-green-300">Project Platform</span>
+                            Smart CRM <br />
                         </h1>
                         <p className="mt-8 text-green-50/70 text-lg font-medium leading-relaxed">
-                            Streamline your business operations with an all-in-one CRM system designed to manage inquiries, leads, deals, customers, and team collaboration.
+                            Manage your business easily with our simple CRM. Track your leads, deals, and customers all in one place.
                         </p>
                     </div>
 

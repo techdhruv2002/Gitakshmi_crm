@@ -2,20 +2,24 @@ import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
     FiLayout, FiTarget, FiUserCheck, FiPhone, FiCalendar,
-    FiCheckSquare, FiLogOut, FiChevronLeft, FiChevronRight, FiLayers
+    FiCheckSquare, FiLogOut, FiChevronLeft, FiChevronRight, FiLayers,
+    FiInbox, FiActivity, FiBarChart2
 } from "react-icons/fi";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { AuthContext } from "../../context/AuthContext";
 
 const SALES_MENU = [
     { name: "Dashboard", icon: <FiLayout />, path: "/sales/dashboard" },
-    { name: "Inquiries", icon: <FiLayers />, path: "/sales/inquiries" },
+    { name: "Analytics", icon: <FiBarChart2 />, path: "/sales/analytics" },
+    { name: "Inquiries", icon: <FiInbox />, path: "/sales/inquiries" },
     { name: "My Leads", icon: <FiTarget />, path: "/sales/leads" },
-    { name: "Customers", icon: <FiUserCheck />, path: "/sales/customers" },
     { name: "My Deals", icon: <FaIndianRupeeSign />, path: "/sales/deals" },
+    { name: "Pipeline", icon: <FiLayers />, path: "/sales/pipeline" },
+    { name: "Tasks", icon: <FiCheckSquare />, path: "/sales/tasks" },
+    { name: "Activities", icon: <FiActivity />, path: "/sales/activities" },
+    { name: "Customers", icon: <FiUserCheck />, path: "/sales/customers" },
     { name: "Calls", icon: <FiPhone />, path: "/sales/calls" },
     { name: "Meetings", icon: <FiCalendar />, path: "/sales/meetings" },
-    { name: "Tasks", icon: <FiCheckSquare />, path: "/sales/todos" },
 ];
 
 const SalesSidebar = ({ isOpen, onClose }) => {
@@ -58,12 +62,6 @@ const SalesSidebar = ({ isOpen, onClose }) => {
                         );
                     })}
                 </nav>
-                <div className="p-4 border-t border-green-100">
-                    <button onClick={logout} className="w-full flex items-center px-4 py-3 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all font-bold text-sm">
-                        <span className="text-xl rotate-180"><FiLogOut /></span>
-                        {!collapsed && <span className="ml-4">Sign Out</span>}
-                    </button>
-                </div>
             </aside>
         </>
     );

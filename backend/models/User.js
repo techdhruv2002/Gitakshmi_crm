@@ -51,4 +51,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.index({ companyId: 1 });
+userSchema.index({ role: 1 });
+
 module.exports = mongoose.model("User", userSchema);

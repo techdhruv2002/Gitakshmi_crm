@@ -1,8 +1,9 @@
-import { createContext, useCallback } from "react";
+import { createContext, useCallback, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import tokenManager from "../utils/tokenManager";
 
 export const AuthContext = createContext();
 
-// ── Role → home path ──────────────────────────────────────────────────────────
 export const ROLE_HOME = {
   super_admin: "/superadmin/dashboard",
   company_admin: "/company/dashboard",
@@ -10,31 +11,29 @@ export const ROLE_HOME = {
   sales: "/sales/dashboard",
 };
 
-// ── Role → isolated localStorage key ─────────────────────────────────────────
-// Each panel reads ONLY its own key — cross-tab contamination eliminated.
-export const ROLE_SESSION_KEY = {
-  super_admin: "sa_session",
-  company_admin: "ca_session",
-  branch_manager: "bm_session",
-  sales: "su_session",
+export const USER_DATA_KEYS = {
+  super_admin: "superAdminUser",
+  company_admin: "companyUser",
+  branch_manager: "branchUser",
+  sales: "salesUser"
 };
 
-// ── Derive session key from current URL path ──────────────────────────────────
 export const getSessionKeyForPath = (path = window.location.pathname) => {
-  if (path.startsWith("/superadmin")) return "sa_session";
-  if (path.startsWith("/company")) return "ca_session";
-  if (path.startsWith("/branch")) return "bm_session";
-  if (path.startsWith("/sales")) return "su_session";
-  return null; // login or root
+  if (path.startsWith("/superadmin")) return "super_admin";
+  if (path.startsWith("/company")) return "company_admin";
+  if (path.startsWith("/branch")) return "branch_manager";
+  if (path.startsWith("/sales")) return "sales";
+  return null;
 };
 
 // ── Safe single-session reader ────────────────────────────────────────────────
-export const readSession = (key) => {
-  if (!key) return null;
+export const readSession = (role) => {
+  if (!role) return null;
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw || raw === "null" || raw === "undefined") return null;
-    return JSON.parse(raw);
+    const userRaw = localStorage.getItem(USER_DATA_KEYS[role]);
+    const token = tokenManager.getTokenByRole(role);
+    if (!token || !userRaw) return null;
+    return { token, user: JSON.parse(userRaw) };
   } catch {
     return null;
   }
@@ -42,32 +41,57 @@ export const readSession = (key) => {
 
 // ── Get current user safely (reads from path-derived key) ────────────────────
 export const getCurrentUser = () => {
-  const key = getSessionKeyForPath();
-  return readSession(key)?.user || null;
+  const role = getSessionKeyForPath();
+  return readSession(role)?.user || null;
 };
 
-// ── AuthProvider ──────────────────────────────────────────────────────────────
 export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const location = useLocation();
 
-  // Store token + user under the role's private key
-  const login = useCallback((token, user) => {
-    const key = ROLE_SESSION_KEY[user?.role];
-    if (!key) {
-      console.error("[Auth] Unknown role — cannot store session:", user?.role);
-      return;
+  // Sync user state with current panel on path change
+  useEffect(() => {
+    const role = getSessionKeyForPath(location.pathname);
+    if (role) {
+      const savedUser = localStorage.getItem(USER_DATA_KEYS[role]);
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      } else {
+        setUser(null);
+      }
     }
-    localStorage.setItem(key, JSON.stringify({ token, user }));
+  }, [location.pathname]);
+
+  const login = useCallback((token, userData) => {
+    const role = userData?.role;
+    if (!role) return;
+
+    // Store token using tokenManager
+    tokenManager.setToken(role, token);
+
+    // Store user data in panel-specific key
+    const userKey = USER_DATA_KEYS[role];
+    if (userKey) {
+      localStorage.setItem(userKey, JSON.stringify(userData));
+    }
+
+    setUser(userData);
   }, []);
 
-  // Logout only removes the current panel's session
   const logout = useCallback(() => {
-    const key = getSessionKeyForPath();
-    if (key) localStorage.removeItem(key);
+    const role = getSessionKeyForPath(window.location.pathname);
+
+    if (role) {
+      tokenManager.clearToken(role);
+      localStorage.removeItem(USER_DATA_KEYS[role]);
+    }
+
+    setUser(null);
     window.location.replace("/login");
   }, []);
 
   return (
-    <AuthContext.Provider value={{ login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

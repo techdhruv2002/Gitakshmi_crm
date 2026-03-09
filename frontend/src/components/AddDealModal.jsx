@@ -96,32 +96,32 @@ const AddDealModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                         <FiTrendingUp size={28} strokeWidth={2.5} />
                     </div>
                     <h2 className="text-2xl font-black text-gray-900 tracking-tight">
-                        {editingData ? "Negotiation Sync" : "New Value Deployment"}
+                        {editingData ? "Edit Deal" : "Add Deal"}
                     </h2>
-                    <p className="text-gray-400 text-xs font-[800] uppercase tracking-widest mt-2">Capital Yield Management</p>
+                    <p className="text-gray-400 text-xs font-[800] uppercase tracking-widest mt-2">Deal Information</p>
                 </div>
 
                 <form onSubmit={handleFormSubmit} className="px-10 py-10 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Deal Intelligence</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Deal Details</label>
                             <div className="relative group">
                                 <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none group-focus-within:text-green-500 transition-colors" />
-                                <input name="title" required value={formData.title} onChange={handleChange} placeholder="Deal Identification..." className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm" />
+                                <input name="title" required value={formData.title} onChange={handleChange} placeholder="Deal Name..." className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm" />
                             </div>
                             <div className="relative group">
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none font-black group-focus-within:text-green-500 transition-colors">₹</span>
-                                <input name="value" type="number" required value={formData.value} onChange={handleChange} placeholder="Capital Extraction Value..." className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm" />
+                                <input name="value" type="number" required value={formData.value} onChange={handleChange} placeholder="Deal Value..." className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm" />
                             </div>
                             <div className="relative group">
                                 <FiTarget className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none group-focus-within:text-green-500 transition-colors" />
                                 <select name="stage" required value={formData.stage} onChange={handleChange} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-700 text-sm appearance-none shadow-sm cursor-pointer">
-                                    <option value="">Deal Stage...</option>
+                                    <option value="">Select Stage...</option>
                                     <option value="New">New Opportunity</option>
                                     {masterStages.map(s => <option key={s._id} value={s.name}>{s.name}</option>)}
-                                    <option value="Closed Won">Closed Won (Success)</option>
-                                    <option value="Closed Lost">Closed Lost (Null)</option>
+                                    <option value="Closed Won">Closed Won</option>
+                                    <option value="Closed Lost">Closed Lost</option>
                                 </select>
                             </div>
 
@@ -144,25 +144,25 @@ const AddDealModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                         </div>
 
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Authority & Link</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Related Information</label>
                             <div className="relative group">
                                 <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none group-focus-within:text-green-500 transition-colors" />
                                 <select name="companyId" required value={formData.companyId} onChange={handleChange} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-700 text-sm appearance-none shadow-sm cursor-pointer">
-                                    <option value="">Target Platform...</option>
+                                    <option value="">Select Company...</option>
                                     {companies.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                                 </select>
                             </div>
                             <div className="relative group">
                                 <FiFlag className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none group-focus-within:text-green-500 transition-colors" />
                                 <select name="leadId" required value={formData.leadId} onChange={handleChange} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-700 text-sm appearance-none shadow-sm cursor-pointer">
-                                    <option value="">Origin Lead...</option>
+                                    <option value="">Select Lead...</option>
                                     {leads.map(l => <option key={l._id} value={l._id}>{l.name}</option>)}
                                 </select>
                             </div>
                             <div className="relative group">
                                 <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none group-focus-within:text-green-500 transition-colors" />
                                 <select name="assignedTo" required value={formData.assignedTo} onChange={handleChange} className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-xl outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-700 text-sm appearance-none shadow-sm cursor-pointer">
-                                    <option value="">Overseer Node...</option>
+                                    <option value="">Assign To...</option>
                                     {users.map(u => <option key={u._id} value={u._id}>{u.name} ({u.role})</option>)}
                                 </select>
                             </div>
@@ -171,8 +171,8 @@ const AddDealModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                     </div>
 
                     <div className="pt-8 flex gap-4">
-                        <button type="button" onClick={onClose} className="flex-1 py-4 font-black rounded-xl text-xs uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">Abandon</button>
-                        <button type="submit" className="flex-2 px-10 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 text-xs uppercase tracking-widest hover:bg-green-600 hover:scale-[1.02] active:scale-95 transition-all">Synchronize Deal</button>
+                        <button type="button" onClick={onClose} className="flex-1 py-4 font-black rounded-xl text-xs uppercase tracking-widest text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">Cancel</button>
+                        <button type="submit" className="flex-2 px-10 py-4 bg-green-500 text-white font-black rounded-xl shadow-xl shadow-green-500/20 text-xs uppercase tracking-widest hover:bg-green-600 hover:scale-[1.02] active:scale-95 transition-all">Save Deal</button>
                     </div>
                 </form>
             </div>

@@ -2,21 +2,26 @@ import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
     FiLayout, FiBriefcase, FiDatabase, FiGitPullRequest, FiUsers, FiTarget,
-    FiUserCheck, FiPieChart, FiCpu, FiSettings, FiLogOut, FiChevronLeft, FiChevronRight, FiInbox
+    FiUserCheck, FiPieChart, FiCpu, FiSettings, FiLogOut, FiChevronLeft, FiChevronRight, FiInbox,
+    FiActivity, FiCheckSquare, FiLayers, FiBarChart2
 } from "react-icons/fi";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { AuthContext } from "../../context/AuthContext";
 
 const COMPANY_ADMIN_MENU = [
     { name: "Dashboard", icon: <FiLayout />, path: "/company/dashboard" },
+    { name: "Analytics", icon: <FiBarChart2 />, path: "/company/analytics" },
     { name: "Inquiries", icon: <FiInbox />, path: "/company/inquiries" },
-    { name: "Master", icon: <FiDatabase />, path: "/company/master" },
+    { name: "Leads", icon: <FiTarget />, path: "/company/leads" },
+    { name: "Deals", icon: <FaIndianRupeeSign />, path: "/company/deals" },
+    { name: "Pipeline", icon: <FiLayers />, path: "/company/pipeline" },
+    { name: "Tasks", icon: <FiCheckSquare />, path: "/company/tasks" },
+    { name: "Activities", icon: <FiActivity />, path: "/company/activities" },
     { name: "Branches", icon: <FiGitPullRequest />, path: "/company/branches" },
     { name: "Users", icon: <FiUsers />, path: "/company/users" },
-    { name: "Leads", icon: <FiTarget />, path: "/company/leads" },
     { name: "Customers", icon: <FiUserCheck />, path: "/company/customers" },
-    { name: "Deals", icon: <FaIndianRupeeSign />, path: "/company/deals" },
     { name: "Reports", icon: <FiPieChart />, path: "/company/reports" },
+    { name: "Master", icon: <FiDatabase />, path: "/company/master" },
     { name: "Automation", icon: <FiCpu />, path: "/company/automation" },
     { name: "Settings", icon: <FiSettings />, path: "/company/settings" },
 ];
@@ -61,12 +66,6 @@ const CompanyAdminSidebar = ({ isOpen, onClose }) => {
                         );
                     })}
                 </nav>
-                <div className="p-4 border-t border-green-100">
-                    <button onClick={logout} className="w-full flex items-center px-4 py-3 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all font-bold text-sm">
-                        <span className="text-xl rotate-180"><FiLogOut /></span>
-                        {!collapsed && <span className="ml-4">Sign Out</span>}
-                    </button>
-                </div>
             </aside>
         </>
     );

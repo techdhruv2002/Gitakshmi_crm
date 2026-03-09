@@ -69,10 +69,10 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                 <div className="px-10 py-8 bg-gradient-to-r from-green-50 to-white flex items-center justify-between border-b border-gray-50">
                     <div>
                         <h2 className="text-3xl font-black text-gray-900 tracking-tight">
-                            {editingData ? "Regional Node Recalibration" : "Regional Node Provisioning"}
+                            {editingData ? "Edit Branch" : "Add Branch"}
                         </h2>
                         <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mt-1">
-                            {editingData ? "Decentralized Resource Optimization" : "Strategic Branch Deployment"}
+                            {editingData ? "Update branch details" : "Create a new branch"}
                         </p>
                     </div>
                     <button onClick={onClose} className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all">
@@ -83,12 +83,12 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                 <form onSubmit={handleSubmit} className="p-10 space-y-8 max-h-[75vh] overflow-y-auto custom-scrollbar">
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 text-gray-300 font-black uppercase tracking-[0.3em] text-[10px]">
-                            <FiActivity /> Operational Metrics
+                            <FiActivity /> Branch Information
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             {/* Branch Name */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Node Identifier (Name) *</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Branch Name *</label>
                                 <div className="relative group">
                                     <FiLayers className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                     <input
@@ -96,7 +96,7 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                         name="name"
                                         type="text"
                                         className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-[1.25rem] outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm"
-                                        placeholder="Regional HQ Node"
+                                        placeholder="Branch Name"
                                         value={formData.name}
                                         onChange={handleChange}
                                     />
@@ -106,7 +106,7 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                             {/* Company Selection (Super Admin only) */}
                             {isSuperAdmin && (
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Parent Organization Matrix *</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Company *</label>
                                     <div className="relative group">
                                         <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors z-10" />
                                         <select
@@ -116,7 +116,7 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                             value={formData.companyId}
                                             onChange={handleChange}
                                         >
-                                            <option value="">Select Parent Hub...</option>
+                                            <option value="">Select Company...</option>
                                             {companies.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                                         </select>
                                     </div>
@@ -125,14 +125,14 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                             {/* Phone */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Direct Node Dial (Phone)</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Phone</label>
                                 <div className="relative group">
                                     <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                     <input
                                         name="phone"
                                         type="tel"
                                         className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-[1.25rem] outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm"
-                                        placeholder="+1 800 REGIONAL-NODE"
+                                        placeholder="Phone Number"
                                         value={formData.phone}
                                         onChange={handleChange}
                                     />
@@ -141,7 +141,7 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                             {/* Status */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Node Phase Status</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Status</label>
                                 <div className="relative group">
                                     <FiActivity className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-500 transition-colors z-10" />
                                     <select
@@ -150,8 +150,8 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                                         value={formData.status}
                                         onChange={handleChange}
                                     >
-                                        <option value="active">Operational Active</option>
-                                        <option value="inactive">System: Decommissioned</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
                                     </select>
                                 </div>
                             </div>
@@ -159,14 +159,14 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
 
                         {/* Address */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Geographic Access Point (Address)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Address</label>
                             <div className="relative group">
                                 <FiMapPin className="absolute left-4 top-4 text-gray-400 group-focus-within:text-green-500 transition-colors" />
                                 <textarea
                                     name="address"
                                     rows={2}
                                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-[1.25rem] outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-bold text-gray-700 text-sm shadow-sm resize-none"
-                                    placeholder="Localized regional hub link address..."
+                                    placeholder="Branch Address..."
                                     value={formData.address}
                                     onChange={handleChange}
                                 />
@@ -179,9 +179,9 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                             <FiInfo className="text-green-600" />
                         </div>
                         <div>
-                            <p className="text-[10px] font-black text-green-700 uppercase tracking-[0.2em]">Resource Allocation Note</p>
+                            <p className="text-[10px] font-black text-green-700 uppercase tracking-[0.2em]">Note</p>
                             <p className="text-[10px] font-bold text-gray-500 mt-1 leading-relaxed">
-                                Initializing this node will allow regional assignment of users and assets. Ensure jurisdictional metadata is accurate before commit.
+                                Creating this branch will allow you to assign users to it.
                             </p>
                         </div>
                     </div>
@@ -193,14 +193,14 @@ const AddBranchModal = ({ isOpen, onClose, onSubmit, editingData }) => {
                             onClick={onClose}
                             className="flex-1 px-8 py-5 bg-gray-100 text-gray-500 font-black rounded-3xl hover:bg-gray-200 transition-all text-[11px] uppercase tracking-[0.2em]"
                         >
-                            Abort
+                            Cancel
                         </button>
                         <button
                             type="submit"
                             className="flex-[2] flex items-center justify-center gap-3 px-8 py-5 bg-green-600 text-white font-black rounded-3xl shadow-2xl shadow-green-500/30 hover:bg-green-700 hover:scale-[1.02] active:scale-95 transition-all text-[11px] uppercase tracking-[0.2em]"
                         >
                             <FiPlus size={20} />
-                            {editingData ? "Recalibrate Node Cluster" : "Commit Node Deployment"}
+                            {editingData ? "Save Changes" : "Save Branch"}
                         </button>
                     </div>
                 </form>

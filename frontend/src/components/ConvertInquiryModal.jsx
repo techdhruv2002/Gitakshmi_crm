@@ -20,7 +20,7 @@ const ConvertInquiryModal = ({ isOpen, onClose, inquiry, onSuccess }) => {
     const fetchUsers = async () => {
         try {
             const res = await API.get("/users");
-            setUsers(res.data || []);
+            setUsers(res.data?.data || (Array.isArray(res.data) ? res.data : []));
         } catch (err) {
             console.error("Failed to fetch users:", err);
         }
@@ -30,13 +30,14 @@ const ConvertInquiryModal = ({ isOpen, onClose, inquiry, onSuccess }) => {
         setLoading(true);
         setError("");
         try {
-            await API.post(`/inquiries/${inquiry._id}/convert`, {
+            const res = await API.post(`/inquiries/${inquiry._id}/convert`, {
                 assignedTo: assignedTo || null
             });
-            onSuccess();
+            onSuccess(res.data?.message || "Successfully converted.");
             onClose();
         } catch (err) {
-            setError(err.response?.data?.message || "Conversion failed.");
+            console.error("Conversion error:", err);
+            setError(err.response?.data?.message || "Failed to convert.");
         } finally {
             setLoading(false);
         }
@@ -51,7 +52,7 @@ const ConvertInquiryModal = ({ isOpen, onClose, inquiry, onSuccess }) => {
                 <div className="px-8 py-6 bg-gradient-to-r from-emerald-50 to-white flex items-center justify-between border-b border-gray-50">
                     <div>
                         <h2 className="text-2xl font-black text-gray-900 tracking-tight text-emerald-600">Convert to Lead</h2>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Lifecycle Promotion Protocol</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Convert Inquiry to Lead</p>
                     </div>
                     <button onClick={onClose} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
                         <FiX size={24} />
@@ -68,7 +69,7 @@ const ConvertInquiryModal = ({ isOpen, onClose, inquiry, onSuccess }) => {
                     {/* Inquiry Summary */}
                     <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 space-y-3">
                         <div className="flex items-center justify-between border-b border-gray-200/50 pb-2">
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Target Entity</span>
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Inquiry Name</span>
                             <span className="text-xs font-black text-gray-900">{inquiry.name}</span>
                         </div>
                         <div className="text-[11px] font-bold text-gray-500 leading-relaxed italic">
@@ -80,17 +81,16 @@ const ConvertInquiryModal = ({ isOpen, onClose, inquiry, onSuccess }) => {
                     <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex gap-3">
                         <FiInfo className="text-blue-500 shrink-0 mt-0.5" size={16} />
                         <div className="space-y-1">
-                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Impact Assessment</p>
+                            <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">What happens next?</p>
                             <p className="text-[11px] text-blue-500 font-bold leading-normal">
-                                This will create a fresh **Lead** record in status **New**.
-                                The inquiry status will be frozen as **Converted**.
+                                This will create a new Lead. The inquiry will be marked as 'converted'.
                             </p>
                         </div>
                     </div>
 
                     {/* Assignment */}
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Officer Assignment</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Assign To</label>
                         <div className="relative group">
                             <FiShield className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
                             <select
@@ -99,7 +99,7 @@ const ConvertInquiryModal = ({ isOpen, onClose, inquiry, onSuccess }) => {
                                 onChange={e => setAssignedTo(e.target.value)}
                             >
                                 <option value="">Auto assign / Unassigned</option>
-                                <option value={currentUser.id || currentUser._id}>Assign to me (Self)</option>
+                                <option value={currentUser.id || currentUser._id}>Assign to me</option>
                                 {users.filter(u => u._id !== (currentUser.id || currentUser._id)).map(u => (
                                     <option key={u._id} value={u._id}>{u.name} ({u.role?.replace("_", " ")})</option>
                                 ))}
@@ -127,7 +127,7 @@ const ConvertInquiryModal = ({ isOpen, onClose, inquiry, onSuccess }) => {
                             ) : (
                                 <>
                                     <FiCheckCircle size={18} />
-                                    Confirm Promotion
+                                    Convert to Lead
                                 </>
                             )}
                         </button>

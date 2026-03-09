@@ -22,10 +22,10 @@ const Settings = () => {
         setLoading(true);
         try {
             const res = await API.put(`/super-admin/users/${user.id}`, { name: profile.name, email: profile.email });
-            setMsg({ text: "Profile synchronization complete.", type: "success" });
+            setMsg({ text: "Profile updated.", type: "success" });
             // Optionally update context here if login function supports it or re-fetch
         } catch (err) {
-            setMsg({ text: "Profile update failure: " + err.response?.data?.message, type: "error" });
+            setMsg({ text: "Error updating profile: " + err.response?.data?.message, type: "error" });
         } finally {
             setLoading(false);
         }
@@ -34,16 +34,16 @@ const Settings = () => {
     const handlePasswordUpdate = async (e) => {
         e.preventDefault();
         if (passwords.new !== passwords.confirm) {
-            setMsg({ text: "Security code mismatch detected.", type: "error" });
+            setMsg({ text: "Passwords do not match.", type: "error" });
             return;
         }
         setLoading(true);
         try {
             await API.put(`/super-admin/users/${user.id}`, { password: passwords.new });
-            setMsg({ text: "Auth protocols updated.", type: "success" });
+            setMsg({ text: "Password changed.", type: "success" });
             setPasswords({ current: "", new: "", confirm: "" });
         } catch (err) {
-            setMsg({ text: err.response?.data?.message || "Auth update failed.", type: "error" });
+            setMsg({ text: err.response?.data?.message || "Error changing password.", type: "error" });
         } finally {
             setLoading(false);
         }
@@ -55,8 +55,8 @@ const Settings = () => {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-green-50/30 rounded-full blur-3xl -mr-20 -mt-20"></div>
                 <div className="relative z-10">
-                    <h1 className="text-4xl font-black text-gray-900 tracking-tight">System Configuration</h1>
-                    <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 opacity-60">Personalize and Secure your Overseer Hub</p>
+                    <h1 className="text-4xl font-black text-gray-900 tracking-tight">Settings</h1>
+                    <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px] mt-2 opacity-60">Manage your account and security settings.</p>
                 </div>
             </div>
 
@@ -81,34 +81,34 @@ const Settings = () => {
                     <div className="flex items-center gap-4 mb-12 relative">
                         <div className="p-4 bg-green-50 text-green-600 rounded-[1.25rem] shadow-sm"><FiUser size={28} /></div>
                         <div>
-                            <h3 className="text-2xl font-black text-gray-800 tracking-tight">Profile Identity</h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Core Personnel Metadata</p>
+                            <h3 className="text-2xl font-black text-gray-800 tracking-tight">My Profile</h3>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Your information</p>
                         </div>
                     </div>
                     <form onSubmit={handleProfileUpdate} className="space-y-8 relative">
                         <div className="space-y-2.5">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Authority Name</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Your Name</label>
                             <input
                                 value={profile.name}
                                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
                                 className="w-full px-7 py-5 bg-gray-50 border border-transparent rounded-[1.5rem] outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-800 text-sm shadow-sm"
-                                placeholder="Designated legal name..."
+                                placeholder="Enter your name..."
                             />
                         </div>
                         <div className="space-y-2.5">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Primary Route (Email)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Your Email</label>
                             <input
                                 value={profile.email}
                                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                                 className="w-full px-7 py-5 bg-gray-50 border border-transparent rounded-[1.5rem] outline-none focus:ring-4 focus:ring-green-500/10 focus:border-green-400 focus:bg-white transition-all font-black text-gray-800 text-sm shadow-sm"
-                                placeholder="Corporate routing label..."
+                                placeholder="Enter your email..."
                             />
                         </div>
                         <button
                             disabled={loading}
                             className="w-full py-5 bg-green-500 text-white font-black rounded-2xl shadow-2xl shadow-green-500/20 hover:bg-green-600 hover:scale-[1.02] active:scale-95 transition-all text-[11px] uppercase tracking-[0.2em] mt-2"
                         >
-                            Synchronize Instance
+                            Save Changes
                         </button>
                     </form>
                 </div>
@@ -119,28 +119,28 @@ const Settings = () => {
                     <div className="flex items-center gap-4 mb-12 relative z-10">
                         <div className="p-4 bg-white/10 text-white rounded-[1.25rem] backdrop-blur-xl border border-white/10 shadow-xl"><FiLock size={28} /></div>
                         <div>
-                            <h3 className="text-2xl font-black tracking-tight">Security Hardening</h3>
-                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">Auth Protocol Synchronization</p>
+                            <h3 className="text-2xl font-black tracking-tight">Change Password</h3>
+                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">Manage your password</p>
                         </div>
                     </div>
                     <form onSubmit={handlePasswordUpdate} className="space-y-8 relative z-10">
                         <div className="space-y-2.5">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] px-1">New Secure Cipher</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] px-1">New Password</label>
                             <input
                                 type="password"
                                 value={passwords.new}
                                 onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                                placeholder="Alpha-numeric encryption sequence..."
+                                placeholder="Enter new password..."
                                 className="w-full px-7 py-5 bg-white/5 border border-white/10 rounded-[1.5rem] outline-none focus:ring-4 focus:ring-white/10 focus:border-white/20 transition-all font-black text-white text-sm shadow-lg"
                             />
                         </div>
                         <div className="space-y-2.5">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] px-1">Validate Cipher</label>
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] px-1">Confirm Password</label>
                             <input
                                 type="password"
                                 value={passwords.confirm}
                                 onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                                placeholder="Duplicate sequence verification..."
+                                placeholder="Confirm new password..."
                                 className="w-full px-7 py-5 bg-white/5 border border-white/10 rounded-[1.5rem] outline-none focus:ring-4 focus:ring-white/10 focus:border-white/20 transition-all font-black text-white text-sm shadow-lg"
                             />
                         </div>
@@ -148,7 +148,7 @@ const Settings = () => {
                             disabled={loading}
                             className="w-full py-5 bg-white text-gray-900 font-black rounded-2xl shadow-2xl hover:bg-gray-100 hover:scale-[1.02] active:scale-95 transition-all text-[11px] uppercase tracking-[0.2em] mt-2"
                         >
-                            Execute Auth Rebuild
+                            Update Password
                         </button>
                     </form>
                 </div>
@@ -159,16 +159,16 @@ const Settings = () => {
                         <div className="flex items-center gap-4">
                             <div className="p-4 bg-gray-900 text-white rounded-[1.25rem] shadow-lg"><FiActivity size={28} /></div>
                             <div>
-                                <h3 className="text-2xl font-black text-gray-800 tracking-tight">Interface Cluster</h3>
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">UX Behavior Calibration</p>
+                                <h3 className="text-2xl font-black text-gray-800 tracking-tight">Display Settings</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Change how things look</p>
                             </div>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[
-                            { icon: FiBell, label: "Event Notifications", active: true },
-                            { icon: FiShield, label: "2FA Multi-Factor", active: false },
-                            { icon: FiActivity, label: "Dark Interface", active: false }
+                            { icon: FiBell, label: "Notifications", active: true },
+                            { icon: FiShield, label: "Extra Security (2FA)", active: false },
+                            { icon: FiActivity, label: "Dark Mode", active: false }
                         ].map((node, i) => (
                             <div key={i} className="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100 flex items-center justify-between hover:bg-gray-100 transition-all cursor-pointer group shadow-sm hover:shadow-md">
                                 <div className="flex items-center gap-5">

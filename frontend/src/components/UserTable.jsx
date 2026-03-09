@@ -8,11 +8,11 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50/50 border-b border-gray-100">
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">User Profile</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Role & Privilege</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Assignment Cluster</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Auth Status</th>
-                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Operations</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">User</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Role</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Assignments</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Status</th>
+                            <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -45,7 +45,7 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                                 <FiBriefcase className="mr-1.5 opacity-40 text-green-500" />
-                                                {user.companyId?.name || "Global Cloud"}
+                                                {user.companyId?.name || "Global"}
                                             </div>
                                             {user.branchId && (
                                                 <div className="flex items-center text-[10px] font-black text-gray-400 uppercase tracking-widest">
@@ -70,14 +70,14 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                                             <button
                                                 onClick={() => onEdit(user)}
                                                 className="p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all shadow-sm bg-white border border-transparent hover:border-green-100"
-                                                title="Edit User Meta"
+                                                title="Edit"
                                             >
                                                 <FiEdit2 size={16} />
                                             </button>
                                             <button
                                                 onClick={() => onDelete(user._id)}
                                                 className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm bg-white border border-transparent hover:border-red-100"
-                                                title="Revoke Permission"
+                                                title="Delete"
                                             >
                                                 <FiTrash2 size={16} />
                                             </button>
@@ -88,7 +88,7 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                         ) : (
                             <tr>
                                 <td colSpan="5" className="px-8 py-24 text-center text-gray-300 font-black uppercase tracking-[0.2em] italic">
-                                    No identity profiles located in current cluster.
+                                    No users found.
                                 </td>
                             </tr>
                         )}

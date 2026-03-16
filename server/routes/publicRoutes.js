@@ -6,8 +6,18 @@ const { publicCreateInquiry } = require("../controllers/publicInquiryController"
 // Allow WordPress/External sites to submit inquiries
 const publicCors = cors({
     origin: "*",
-    methods: ["POST", "OPTIONS"],
+    methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "x-api-key", "X-API-KEY"]
+});
+
+// Health check: GET /api/public/inquiry → confirms public API is reachable (no auth)
+router.get("/inquiry", publicCors, (req, res) => {
+    res.json({
+        success: true,
+        message: "Public inquiry API is reachable. Use POST with x-api-key and body: name, email, phone.",
+        method: "POST",
+        bodyRequired: ["name", "email", "phone"]
+    });
 });
 
 router.options("/inquiry", publicCors);

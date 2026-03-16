@@ -10,6 +10,7 @@ import {
   FiActivity,
   FiPieChart,
   FiSettings,
+  FiInbox,
 } from "react-icons/fi";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { AuthContext } from "../../context/AuthContext";

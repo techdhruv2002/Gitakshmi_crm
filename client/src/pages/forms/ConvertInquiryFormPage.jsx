@@ -22,18 +22,22 @@ export default function ConvertInquiryFormPage() {
 
     useEffect(() => {
         (async () => {
+            if (!id) {
+                setFetching(false);
+                return;
+            }
             try {
                 const [inqRes, usersRes] = await Promise.all([
-                    API.get("/inquiries"),
+                    API.get(`/inquiries/${id}`),
                     API.get("/users")
                 ]);
-                const allInq = Array.isArray(inqRes.data?.data) ? inqRes.data.data : (Array.isArray(inqRes.data) ? inqRes.data : []);
-                const found = allInq.find(i => i._id === id);
-                if (found) setInquiry(found);
+                const inq = inqRes.data?.data || inqRes.data;
+                if (inq) setInquiry(inq);
                 const allUsers = Array.isArray(usersRes.data?.data) ? usersRes.data.data : (Array.isArray(usersRes.data) ? usersRes.data : []);
                 setUsers(allUsers);
             } catch (err) {
-                toast.error("Failed to fetch inquiry details.");
+                if (err.response?.status === 404) setInquiry(null);
+                else toast.error("Failed to fetch inquiry details.");
             } finally {
                 setFetching(false);
             }
@@ -46,10 +50,14 @@ export default function ConvertInquiryFormPage() {
             const res = await API.post(`/inquiries/${id}/convert`, { assignedTo: assignedTo || null });
             toast.success(res.data?.message || "Successfully converted to lead.");
 
-            // Redirect based on role
+            // Redirect based on role (super_admin has no leads route, go to inquiries)
             const role = currentUser.role;
-            const base = (role === 'sales' ? '/sales' : (role === 'branch_manager' ? '/branch' : '/company'));
-            navigate(`${base}/leads`);
+            if (role === 'super_admin') {
+                navigate('/superadmin/inquiries');
+            } else {
+                const base = role === 'sales' ? '/sales' : (role === 'branch_manager' ? '/branch' : '/company');
+                navigate(`${base}/leads`);
+            }
         } catch (err) {
             console.error("Conversion error:", err);
             toast.error(err.response?.data?.message || "Failed to convert inquiry.");

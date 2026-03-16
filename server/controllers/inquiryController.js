@@ -92,8 +92,12 @@ exports.getInquiries = async (req, res) => {
 
         if (req.user.role !== "super_admin") {
             query.companyId = req.user.companyId;
-            if (req.user.role === "branch_manager" || req.user.role === "sales") {
+            if (req.user.role === "branch_manager") {
                 query.branchId = req.user.branchId;
+            }
+            // Salesman sees only inquiries assigned to them
+            if (req.user.role === "sales") {
+                query.assignedTo = req.user.id;
             }
         }
         if (search && String(search).trim()) {
@@ -114,6 +118,7 @@ exports.getInquiries = async (req, res) => {
                 .sort({ createdAt: -1 })
                 .populate("companyId", "name")
                 .populate("sourceId")
+                .populate("assignedTo", "name email role")
                 .skip(skip)
                 .limit(limitNum)
         ]);
@@ -128,6 +133,37 @@ exports.getInquiries = async (req, res) => {
         });
     } catch (err) {
         console.error("GET INQUIRIES ERROR:", err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+// ── GET SINGLE INQUIRY (same RBAC as list) ────────────────────────────────────
+function buildInquiryQuery(req) {
+    const query = {};
+    if (req.user.role !== "super_admin") {
+        query.companyId = req.user.companyId;
+        if (req.user.role === "branch_manager") query.branchId = req.user.branchId;
+        if (req.user.role === "sales") query.assignedTo = req.user.id;
+    }
+    return query;
+}
+
+exports.getInquiryById = async (req, res) => {
+    try {
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+        const mongoose = require("mongoose");
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid Inquiry ID" });
+        }
+        const query = { _id: req.params.id, ...buildInquiryQuery(req) };
+        const inquiry = await Inquiry.findOne(query)
+            .populate("companyId", "name")
+            .populate("sourceId")
+            .populate("assignedTo", "name email role");
+        if (!inquiry) return res.status(404).json({ success: false, message: "Inquiry not found" });
+        res.json({ success: true, data: inquiry });
+    } catch (err) {
+        console.error("GET INQUIRY BY ID ERROR:", err);
         res.status(500).json({ success: false, message: err.message });
     }
 };
@@ -252,6 +288,62 @@ exports.convertInquiryToLead = async (req, res) => {
     }
 };
 
+// ── ASSIGN INQUIRY TO SALESMAN (manager / company_admin only) ─────────────────
+exports.assignInquiry = async (req, res) => {
+    try {
+        if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+        const allowedRoles = ["company_admin", "branch_manager", "super_admin"];
+        if (!allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({ success: false, message: "Only admin or branch manager can assign inquiries." });
+        }
+
+        const mongoose = require("mongoose");
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ success: false, message: "Invalid Inquiry ID" });
+        }
+
+        const inquiry = await Inquiry.findById(req.params.id);
+        if (!inquiry) {
+            return res.status(404).json({ success: false, message: "Inquiry not found" });
+        }
+
+        // Access check: super_admin can touch any; others by company/branch
+        if (req.user.role !== "super_admin") {
+            if (String(inquiry.companyId) !== String(req.user.companyId)) {
+                return res.status(403).json({ success: false, message: "Inquiry does not belong to your company." });
+            }
+            if (req.user.role === "branch_manager" && String(inquiry.branchId) !== String(req.user.branchId)) {
+                return res.status(403).json({ success: false, message: "Inquiry does not belong to your branch." });
+            }
+        }
+
+        const assignedToId = req.body.assignedTo === "" || req.body.assignedTo === null ? null : req.body.assignedTo;
+        if (assignedToId) {
+            const assignedUser = await User.findById(assignedToId);
+            if (!assignedUser || assignedUser.status !== "active") {
+                return res.status(400).json({ success: false, message: "Selected user not found or inactive." });
+            }
+            if (req.user.role === "branch_manager") {
+                if (String(assignedUser.branchId) !== String(req.user.branchId)) {
+                    return res.status(400).json({ success: false, message: "You can only assign to a salesman in your branch." });
+                }
+            }
+            if (req.user.role === "company_admin" && assignedUser.companyId && String(assignedUser.companyId) !== String(inquiry.companyId)) {
+                return res.status(400).json({ success: false, message: "Selected user must belong to the same company." });
+            }
+        }
+
+        inquiry.assignedTo = assignedToId || undefined;
+        await inquiry.save();
+
+        const populated = await Inquiry.findById(inquiry._id).populate("assignedTo", "name email role");
+        res.json({ success: true, message: "Inquiry assignment updated.", data: populated });
+    } catch (err) {
+        console.error("ASSIGN INQUIRY ERROR:", err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 // ── UPDATE INQUIRY STATUS (Open / Ignored) ────────────────────────────────────
 exports.updateInquiryStatus = async (req, res) => {
     try {
@@ -262,8 +354,10 @@ exports.updateInquiryStatus = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid Inquiry ID" });
         }
 
+        const filter = { _id: req.params.id };
+        if (req.user.role !== "super_admin") filter.companyId = req.user.companyId;
         const inquiry = await Inquiry.findOneAndUpdate(
-            { _id: req.params.id, companyId: req.user.companyId },
+            filter,
             { status: req.body.status },
             { new: true }
         );
@@ -287,10 +381,9 @@ exports.deleteInquiry = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid Inquiry ID" });
         }
 
-        const deleted = await Inquiry.findOneAndDelete({
-            _id: req.params.id,
-            companyId: req.user.companyId  // ✅ safety — can only delete own company's inquiries
-        });
+        const deleteFilter = { _id: req.params.id };
+        if (req.user.role !== "super_admin") deleteFilter.companyId = req.user.companyId;
+        const deleted = await Inquiry.findOneAndDelete(deleteFilter);
 
         if (!deleted) {
             return res.status(404).json({ success: false, message: "Inquiry not found or access denied." });

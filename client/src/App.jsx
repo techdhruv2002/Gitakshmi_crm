@@ -119,6 +119,7 @@ function App() {
           <Route path="/superadmin/system-logs" element={<SystemLogs />} />
           <Route path="/superadmin/api-keys" element={<ApiKeys />} />
           <Route path="/superadmin/inquiries" element={<Inquiries />} />
+          <Route path="/superadmin/inquiries/:id/convert" element={<ConvertInquiryFormPage />} />
           <Route path="/superadmin/reports" element={<Reports />} />
           <Route path="/superadmin/automation" element={<Automation />} />
           <Route path="/superadmin/settings" element={<Settings />} />

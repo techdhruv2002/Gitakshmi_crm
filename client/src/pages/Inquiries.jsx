@@ -32,9 +32,12 @@ const InquiriesPage = () => {
     const [total, setTotal] = useState(0);
     const pageSize = 20;
     const [selectedInquiry, setSelectedInquiry] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [assigningId, setAssigningId] = useState(null);
 
     const currentUser = getCurrentUser();
     const role = currentUser?.role;
+    const canAssign = role === "company_admin" || role === "branch_manager" || role === "super_admin";
 
     const [stats, setStats] = useState({
         total: 0,
@@ -85,6 +88,29 @@ const InquiriesPage = () => {
     useEffect(() => { setPage(1); }, [search, statusFilter, externalFilter]);
     useEffect(() => { fetchInquiries(); }, [page, search, statusFilter, externalFilter]);
 
+    useEffect(() => {
+        if (!canAssign) return;
+        API.get("/users")
+            .then((res) => {
+                const list = res.data?.data || res.data || [];
+                setUsers(Array.isArray(list) ? list : []);
+            })
+            .catch(() => setUsers([]));
+    }, [canAssign]);
+
+    const assignInquiry = async (inquiryId, userId) => {
+        setAssigningId(inquiryId);
+        try {
+            await API.patch(`/inquiries/${inquiryId}/assign`, { assignedTo: userId || null });
+            toast.success(userId ? "Inquiry assigned." : "Assignment cleared.");
+            fetchInquiries();
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Assign failed.");
+        } finally {
+            setAssigningId(null);
+        }
+    };
+
     const updateStatus = async (id, status) => {
         try {
             await API.put(`/inquiries/${id}/status`, { status });
@@ -112,7 +138,7 @@ const InquiriesPage = () => {
     });
 
     const getFormPath = (id, action = 'create') => {
-        const base = (role === 'sales' ? '/sales' : (role === 'branch_manager' ? '/branch' : '/company'));
+        const base = role === 'super_admin' ? '/superadmin' : (role === 'sales' ? '/sales' : (role === 'branch_manager' ? '/branch' : '/company'));
         return action === 'convert' ? `${base}/inquiries/${id}/convert` : `${base}/inquiries/create`;
     };
 
@@ -129,6 +155,7 @@ const InquiriesPage = () => {
                     </p>
                 </div>
                 <div className="flex items-center gap-4 relative z-10 w-full lg:w-auto">
+                    {role !== "super_admin" && (
                     <button
                         onClick={() => navigate(getFormPath())}
                         className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-3.5 bg-sky-500 text-white font-black rounded-2xl shadow-lg shadow-sky-500/20 hover:bg-sky-600 hover:scale-[1.02] active:scale-95 transition-all text-xs uppercase tracking-widest min-w-[180px]"
@@ -136,6 +163,7 @@ const InquiriesPage = () => {
                         <FiPlus size={20} strokeWidth={3} />
                         Add New Inquiry
                     </button>
+                    )}
                     <button
                         onClick={fetchInquiries}
                         className="p-3.5 bg-gray-50 text-gray-400 border border-transparent rounded-2xl hover:bg-white hover:text-sky-500 hover:border-sky-200 transition-all shadow-sm"
@@ -337,7 +365,20 @@ const InquiriesPage = () => {
 
                                 {/* Actions */}
                                 <div className="lg:col-span-1 text-right">
-                                    <div className="flex items-center gap-2 justify-end">
+                                    <div className="flex flex-wrap items-center gap-2 justify-end">
+                                        {canAssign && item.status === "Open" && (
+                                            <select
+                                                value={item.assignedTo?._id || item.assignedTo || ""}
+                                                onChange={(e) => assignInquiry(item._id, e.target.value || null)}
+                                                disabled={assigningId === item._id}
+                                                className="px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold bg-white min-w-[120px] focus:ring-2 focus:ring-sky-500/20 focus:border-sky-300"
+                                            >
+                                                <option value="">Unassigned</option>
+                                                {users.filter(u => u.role === "sales" || u.role === "branch_manager").map(u => (
+                                                    <option key={u._id} value={u._id}>{u.name}</option>
+                                                ))}
+                                            </select>
+                                        )}
                                         <button
                                             onClick={() => item.status === "Open" && navigate(getFormPath(item._id, 'convert'))}
                                             disabled={item.status !== "Open"}

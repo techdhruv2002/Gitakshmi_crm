@@ -12,7 +12,7 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus, onAddNew, onView }
                             <th className="px-4 py-3 text-[13px] font-semibold text-[#64748B] uppercase tracking-[0.03em]">Role</th>
                             <th className="px-4 py-3 text-[13px] font-semibold text-[#64748B] uppercase tracking-[0.03em]">Company / Branch</th>
                             <th className="px-4 py-3 text-[13px] font-semibold text-[#64748B] uppercase tracking-[0.03em]">Status</th>
-                            <th className="px-4 py-3 text-[13px] font-semibold text-[#64748B] uppercase tracking-[0.03em] text-right">Actions</th>
+                            <th className="px-4 py-3 text-[13px] font-semibold text-[#64748B] uppercase tracking-[0.03em] text-right w-[160px]">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F0F2F5]">
@@ -66,29 +66,32 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus, onAddNew, onView }
                                             {user.status || 'active'}
                                         </button>
                                     </td>
-                                    <td className="px-4 py-3 text-right">
-                                        <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+                                    <td className="px-4 py-3 text-right w-[160px]">
+                                        <div className="flex items-center justify-end gap-2 flex-nowrap whitespace-nowrap">
                                             <button
                                                 type="button"
                                                 onClick={() => onView?.(user)}
-                                                className="w-11 h-11 flex items-center justify-center bg-white border border-[#E5EAF2] text-[#CBD5E0] rounded-[14px] hover:text-slate-700 hover:bg-slate-50 hover:border-slate-200 transition-all shadow-sm"
+                                                className="w-10 h-10 flex items-center justify-center bg-white border border-[#E5EAF2] text-[#94A3B8] rounded-[14px] hover:text-slate-700 hover:bg-slate-50 hover:border-slate-200 transition-colors shadow-sm"
                                                 title="View"
+                                                aria-label="View user"
                                             >
                                                 <FiEye size={18} />
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => onEdit(user)}
-                                                className="w-11 h-11 flex items-center justify-center bg-white border border-[#E5EAF2] text-[#CBD5E0] rounded-[14px] hover:text-blue-600 hover:bg-slate-50 hover:border-blue-200 transition-all shadow-sm"
+                                                className="w-10 h-10 flex items-center justify-center bg-white border border-[#E5EAF2] text-[#94A3B8] rounded-[14px] hover:text-blue-600 hover:bg-slate-50 hover:border-blue-200 transition-colors shadow-sm"
                                                 title="Edit Profile"
+                                                aria-label="Edit user"
                                             >
                                                 <FiEdit2 size={18} />
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => onDelete?.(user._id)}
-                                                className="w-11 h-11 flex items-center justify-center bg-white border border-[#E5EAF2] text-[#CBD5E0] rounded-[14px] hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all shadow-sm"
+                                                className="w-10 h-10 flex items-center justify-center bg-white border border-[#E5EAF2] text-[#94A3B8] rounded-[14px] hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors shadow-sm"
                                                 title="Delete"
+                                                aria-label="Delete user"
                                             >
                                                 <FiTrash2 size={18} />
                                             </button>

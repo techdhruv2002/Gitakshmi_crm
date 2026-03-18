@@ -101,8 +101,15 @@ const LeadTable = ({ leads, onEdit, onDelete, onConvert, onView, onAssign, onAdd
                                                         {lead.name?.charAt(0) || "L"}
                                                     </div>
                                                 </div>
-                                                <div>
-                                                    <span className="font-bold text-[#1A202C] text-[15px] tracking-tight hover:text-blue-600 cursor-pointer transition-colors block">{lead.name || "Anonymous Lead"}</span>
+                                                <div className="min-w-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onView?.(lead)}
+                                                        className="font-bold text-[#1A202C] text-[15px] tracking-tight hover:text-blue-600 transition-colors block text-left truncate"
+                                                        title="View lead details"
+                                                    >
+                                                        {lead.name || "Anonymous Lead"}
+                                                    </button>
                                                     <div className="flex items-center text-[11px] font-black text-[#A0AEC0] uppercase tracking-widest mt-1.5 opacity-70">
                                                         <FiBriefcase className="mr-2" size={10} />
                                                         {lead.companyName || "Personal Lead"}

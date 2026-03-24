@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:client/dist/assets/Billing-D4HP8yOz.js
-import{j as e}from"./index-CvlYBEoV.js";function r(){return e.jsxs("div",{className:"space-y-6",children:[e.jsx("h1",{className:"text-2xl font-bold text-[#111827]",children:"Billing"}),e.jsx("p",{className:"text-[#6B7280]",children:"Platform billing and revenue overview. Integrate with your payment provider."}),e.jsx("div",{className:"bg-white rounded-xl border border-[#E5E7EB] p-12 text-center text-[#6B7280]",children:"Coming soon"})]})}export{r as default};
-========
-import{j as e}from"./index-B_BACKWD.js";function r(){return e.jsxs("div",{className:"space-y-6",children:[e.jsx("h1",{className:"text-2xl font-bold text-[#111827]",children:"Billing"}),e.jsx("p",{className:"text-[#6B7280]",children:"Platform billing and revenue overview. Integrate with your payment provider."}),e.jsx("div",{className:"bg-white rounded-xl border border-[#E5E7EB] p-12 text-center text-[#6B7280]",children:"Coming soon"})]})}export{r as default};
->>>>>>>> f3b622146c810e59dab318960d43a0d981cb9102:client/dist/assets/Billing-CcVjbcuo.js

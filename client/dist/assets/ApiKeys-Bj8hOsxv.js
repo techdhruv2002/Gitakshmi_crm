@@ -1,1 +1,5 @@
+<<<<<<<< HEAD:client/dist/assets/ApiKeys-Bj8hOsxv.js
 import{j as e}from"./index-CvlYBEoV.js";function t(){return e.jsxs("div",{className:"space-y-6",children:[e.jsx("h1",{className:"text-[26px] font-bold text-[#0F172A]",children:"API Keys"}),e.jsx("p",{className:"text-[#6B7280]",children:"Manage API keys for platform and company-level API access."}),e.jsx("div",{className:"bg-white rounded-xl border border-[#E5E7EB] p-12 text-center text-[#6B7280]",children:"Coming soon"})]})}export{t as default};
+========
+import{j as e}from"./index-B_BACKWD.js";function t(){return e.jsxs("div",{className:"space-y-6",children:[e.jsx("h1",{className:"text-[26px] font-bold text-[#0F172A]",children:"API Keys"}),e.jsx("p",{className:"text-[#6B7280]",children:"Manage API keys for platform and company-level API access."}),e.jsx("div",{className:"bg-white rounded-xl border border-[#E5E7EB] p-12 text-center text-[#6B7280]",children:"Coming soon"})]})}export{t as default};
+>>>>>>>> f3b622146c810e59dab318960d43a0d981cb9102:client/dist/assets/ApiKeys-DwlqBg4j.js

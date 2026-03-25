@@ -34,21 +34,19 @@ exports.getPipeline = async (req, res) => {
             return res.status(400).json({ success: false, message: "Company ID missing from session." });
         }
 
-        let pipeline = await Pipeline.findOne({ companyId }).lean();
+        // Atomic operation to find or create the pipeline to prevent race conditions
+        let pipeline = await Pipeline.findOneAndUpdate(
+            { companyId },
+            { $setOnInsert: { name: "Main Pipeline", companyId, stages: DEFAULT_STAGES } },
+            { new: true, upsert: true, lean: true }
+        );
 
-        // AUTO-HEAL: If pipeline doesn't exist yet, create a default one silently
         if (!pipeline) {
-            console.log("PIPELINE NOT FOUND — Auto-creating default for company:", companyId);
-            const created = await Pipeline.create({
-                name: "Main Pipeline",
-                companyId,
-                stages: DEFAULT_STAGES
-            });
-            pipeline = created.toObject();
+            return res.status(500).json({ success: false, message: "Failed to initialize company pipeline." });
         }
 
         console.log("PIPELINE FETCHED:", pipeline._id);
-        console.log("TOTAL STAGES:", pipeline.stages.length);
+        console.log("TOTAL STAGES:", (pipeline.stages || []).length);
 
         res.json({ success: true, data: pipeline });
     } catch (error) {

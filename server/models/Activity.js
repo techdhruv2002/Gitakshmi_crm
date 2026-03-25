@@ -25,7 +25,7 @@ const activitySchema = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            default: null
         },
         mentionedUserId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -56,7 +56,8 @@ const activitySchema = new mongoose.Schema(
                 "contact",
                 "task",
                 "message",
-                "follow_up"
+                "follow_up",
+                "engagement"
             ],
             required: true
         },

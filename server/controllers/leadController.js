@@ -25,23 +25,28 @@ const DEFAULT_STAGES = [
 
 async function getCompanyPipelineStages(companyId) {
     try {
-        // Enforce ONE pipeline per company (no isDefault requirement)
-        let pipeline = await Pipeline.findOne({ companyId }).lean();
-        
-        if (!pipeline) {
-            console.log("PIPELINE NOT FOUND — Auto-creating default for company:", companyId);
-            const created = await Pipeline.create({
-                name: "Main Pipeline",
-                companyId,
-                stages: DEFAULT_STAGES
-            });
-            pipeline = created.toObject();
+        if (!companyId) {
+            throw new Error("Pipeline initialization failed: Company ID is missing.");
         }
 
-        const stages = [...pipeline.stages].sort((a, b) => (a.order || 0) - (b.order || 0));
+        // Atomic operation to find or create the pipeline to prevent race conditions
+        let pipeline = await Pipeline.findOneAndUpdate(
+            { companyId },
+            { $setOnInsert: { name: "Main Pipeline", companyId, stages: DEFAULT_STAGES } },
+            { new: true, upsert: true, lean: true }
+        );
+
+        if (!pipeline) {
+            throw new Error("Critical: Pipeline could not be retrieved or created.");
+        }
+
+        const stages = Array.isArray(pipeline.stages) 
+            ? [...pipeline.stages].sort((a, b) => (a.order || 0) - (b.order || 0))
+            : [];
+
         return { stages, pipeline };
     } catch (err) {
-        console.error("PIPELINE FETCH ERROR:", err.message);
+        console.error("PIPELINE FETCH ERROR [CONV]:", err.message);
         throw err;
     }
 }

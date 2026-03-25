@@ -780,10 +780,10 @@ export default function LeadDetailPage() {
                   <FiChevronRight size={14} />
                   <span className="text-indigo-600 font-black uppercase tracking-widest text-[10px] ml-1">Assigned to: {salesperson}</span>
                   <span className="ml-4 px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 rounded text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
-                    Score: {lead.score || 0} 🔥
+                    Score: {lead?.score || 0} 🔥
                   </span>
                   <span className="ml-2 px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
-                    Engagement: {lead.engagementScore || 0}% ⚡
+                    Engagement: {lead?.engagementScore || 0}% ⚡
                   </span>
                 </div>
              </div>

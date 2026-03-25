@@ -219,7 +219,8 @@ exports.submitLead = async (req, res, next) => {
     sendWhatsApp({
       phone: lead.phone,
       name: lead.name,
-      score: submission.score
+      score: submission.score,
+      leadId: lead._id
     });
 
     res.json({ success: true, message: "Profile linked. Counselor will contact you." });

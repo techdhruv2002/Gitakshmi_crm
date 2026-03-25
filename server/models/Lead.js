@@ -66,6 +66,8 @@ const leadSchema = new mongoose.Schema(
     probability: { type: Number, default: 10 },
     // Odoo-style priority stars (0-3)
     priorityStars: { type: Number, default: 0 },
+    engagementScore: { type: Number, default: 0 },
+    rating: { type: Number, default: 1 },
     // Won/Lost metadata
     wonAt: { type: Date, default: null },
     lostAt: { type: Date, default: null },

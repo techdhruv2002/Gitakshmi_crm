@@ -1,10 +1,11 @@
-const axios = require("axios");
+const MessageTracking = require("../models/MessageTracking");
+const { updateLeadEngagement, POINTS } = require("../utils/engagementTracker");
 
 /**
  * Send WhatsApp Template Message via Meta Cloud API
- * @param {Object} params { phone, name, score }
+ * @param {Object} params { phone, name, score, leadId }
  */
-const sendWhatsApp = async ({ phone, name, score }) => {
+const sendWhatsApp = async ({ phone, name, score, leadId }) => {
   try {
     const token = process.env.WHATSAPP_ACCESS_TOKEN;
     const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
@@ -52,7 +53,20 @@ const sendWhatsApp = async ({ phone, name, score }) => {
       }
     );
 
-    console.log(`[WA] Success: Message sent to ${formattedPhone}. MessageID: ${response.data.messages?.[0]?.id}`);
+    const messageId = response.data.messages?.[0]?.id;
+    if (messageId && leadId) {
+        await MessageTracking.create({
+            leadId,
+            type: "whatsapp",
+            status: "sent",
+            messageId: messageId.toString()
+        });
+
+        // Initial points for sending
+        await updateLeadEngagement(leadId, POINTS.SENT);
+    }
+
+    console.log(`[WA] Success: Message sent to ${formattedPhone}. MessageID: ${messageId}`);
   } catch (error) {
     const errorData = error.response?.data || error.message;
     console.error("[WA] Integration Error:", JSON.stringify(errorData));

@@ -3,6 +3,8 @@ const EmailLog = require("../models/EmailLog");
 const Lead = require("../models/Lead");
 const Activity = require("../models/Activity");
 const nodemailer = require("nodemailer");
+const MessageTracking = require("../models/MessageTracking");
+const { updateLeadEngagement, POINTS } = require("../utils/engagementTracker");
 
 // SMTP Transporter setup assuming these env vars exist or will be added.
 const transporter = nodemailer.createTransport({
@@ -104,17 +106,21 @@ exports.sendEmail = async (req, res) => {
       toAddress: recipientEmail,
     });
 
-    // Tracking pixel
-    const trackingUrl = `${process.env.API_BASE_URL || process.env.BASE_URL + "/api"}/email/track/open/${emailLog._id}`;
-    const pixelHtml = `<img src="${trackingUrl}" width="1" height="1" style="display:none;" />`;
-    finalBody += pixelHtml;
+    // Tracking pixel (New Engagement System)
+    const engagementTrackingUrl = `${process.env.API_BASE_URL || process.env.BASE_URL + "/api"}/track/email/${emailLog._id}`;
+    const engagementPixelHtml = `<img src="${engagementTrackingUrl}" width="1" height="1" style="display:none;" />`;
+    finalBody += engagementPixelHtml;
 
-    // Link tracking
-    const clickTrackingBase = `${process.env.API_BASE_URL || process.env.BASE_URL + "/api"}/email/track/click/${emailLog._id}`;
-    finalBody = finalBody.replace(/href="([^"]*)"/gi, (match, url) => {
-      if (!url.startsWith("http")) return match;
-      return `href="${clickTrackingBase}?url=${encodeURIComponent(url)}"`;
+    // Create MessageTracking entry
+    await MessageTracking.create({
+      leadId: lead._id,
+      type: "email",
+      status: "sent",
+      messageId: emailLog._id.toString()
     });
+
+    // Initial engagement points for sending
+    await updateLeadEngagement(lead._id, POINTS.SENT);
 
     // Update log with final body
     emailLog.body = finalBody;

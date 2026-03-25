@@ -78,6 +78,13 @@ app.use((req, res, next) => {
 
 /* ================= PUBLIC ROUTES ================= */
 app.use("/api/public", require("./routes/publicRoutes"));
+app.use("/api/track", forceJsonResponse(false), require("./routes/trackRoutes")); // For pixel and webhook (Pixel isn't JSON)
+
+function forceJsonResponse(val) {
+    return (req, res, next) => {
+        next();
+    };
+}
 
 /* ================= INTERNAL ROUTES ================= */
 app.use("/api/auth", require("./routes/authRoutes"));

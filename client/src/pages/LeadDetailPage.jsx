@@ -29,6 +29,7 @@ import {
 import API from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { getCurrentUser } from "../context/AuthContext";
+import { useSocket } from "../context/SocketContext";
 import LostModal from "../components/LostModal";
 
 // No hardcoded stages - All fetched dynamically
@@ -326,6 +327,7 @@ export default function LeadDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const socket = useSocket();
   const [lead, setLead] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chatterTab, setChatterTab] = useState("conversation");
@@ -504,6 +506,18 @@ export default function LeadDetailPage() {
     fetchLead();
     fetchPipeline();
   }, [fetchLead, fetchPipeline]);
+
+  useEffect(() => {
+    if (!socket || !id) return;
+    const handleUpdate = (data) => {
+      if (data.leadId === id) {
+        fetchLead();
+        fetchTimeline();
+      }
+    };
+    socket.on("lead_updated", handleUpdate);
+    return () => socket.off("lead_updated", handleUpdate);
+  }, [socket, id, fetchLead, fetchTimeline]);
 
   const fetchFollowUps = useCallback(async () => {
     if (!id) return;
@@ -754,11 +768,11 @@ export default function LeadDetailPage() {
              <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-transparent hover:border-gray-200">
                <FiArrowLeft size={18} className="text-gray-600" />
              </button>
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-2 min-w-0">
                 <span className={`px-2 py-1 text-[10px] font-black uppercase tracking-wider rounded border ${isWon ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : isLost ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-gray-100 text-gray-500 border-gray-200'}`}>
                   {statusNorm.toUpperCase()}
                 </span>
-                <div className="hidden sm:flex items-center text-xs font-bold text-gray-400">
+                <div className="hidden sm:flex items-center text-xs font-bold text-gray-400 min-w-0 flex-1">
                   <span>Pipeline</span>
                   <FiChevronRight size={14} />
                   <span className="text-gray-900 truncate max-w-[200px]">{lead.customId || lead.name || "Opportunity"}</span>
@@ -767,6 +781,9 @@ export default function LeadDetailPage() {
                   <span className="text-indigo-600 font-black uppercase tracking-widest text-[10px] ml-1">Assigned to: {salesperson}</span>
                   <span className="ml-4 px-2 py-0.5 bg-amber-50 text-amber-600 border border-amber-100 rounded text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
                     Score: {lead.score || 0} 🔥
+                  </span>
+                  <span className="ml-2 px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded text-[9px] font-black uppercase tracking-widest flex items-center gap-1">
+                    Engagement: {lead.engagementScore || 0}% ⚡
                   </span>
                 </div>
              </div>
@@ -822,7 +839,22 @@ export default function LeadDetailPage() {
           {/* Main Content (Left) */}
           <div className="flex-1 p-8 border-r border-gray-100">
             <div className="mb-8">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight break-words">{lead.name || "Opportunity"}{"'s opportunity"}</h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight break-words">{lead.name || "Opportunity"}{"'s opportunity"}</h1>
+                
+                {/* Dynamic Engagement Star Rating */}
+                <div className="inline-flex items-center gap-0.5 px-3 py-1 bg-white border border-gray-100 rounded-full shadow-sm">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span 
+                      key={star} 
+                      className={`text-lg transition-all duration-500 ${star <= (lead.rating || 1) ? 'text-amber-400 drop-shadow-sm scale-110' : 'text-gray-200'}`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                  <span className="ml-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Engagement</span>
+                </div>
+              </div>
                <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 font-medium">
                 <FiUser size={14} className="text-indigo-400" />
                 <span>Working on this: <span className="text-indigo-600 font-black uppercase tracking-widest text-[11px]">{salesperson}</span></span>
@@ -843,54 +875,54 @@ export default function LeadDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
               {/* Left Grid */}
               <div className="space-y-4">
-                <div className="flex items-center group">
-                  <label className="w-1/3 text-sm font-bold text-gray-900">Expected Revenue</label>
-                  <div className="flex-1 flex items-center gap-2">
+                <div className="flex items-start group">
+                  <label className="w-32 shrink-0 text-sm font-bold text-gray-900 pt-0.5">Expected Revenue</label>
+                  <div className="flex-1">
                     <span className="text-sm font-medium text-gray-700">₹ {Number(expectedRevenue || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
                 <div className="flex items-center group">
-                  <label className="w-1/3 text-sm font-bold text-gray-900">Probability</label>
+                  <label className="w-32 shrink-0 text-sm font-bold text-gray-900">Probability</label>
                   <div className="flex-1 flex items-center gap-2">
-                    <span className="text-sm text-gray-500">at</span>
+                    <span className="text-xs text-gray-400 font-medium italic">at</span>
                     <span className="text-sm font-black text-gray-900">{probability.toFixed(2)} %</span>
                   </div>
                 </div>
                 
                 <div className="pt-6 space-y-4 border-t border-gray-50">
                   <div className="flex items-center">
-                    <label className="w-1/3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Contact</label>
-                    <span className="flex-1 text-sm font-bold text-teal-600 hover:underline cursor-pointer">{lead.name}</span>
+                    <label className="w-32 shrink-0 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Contact</label>
+                    <span className="flex-1 text-sm font-bold text-teal-600 hover:underline cursor-pointer truncate">{lead.name}</span>
                   </div>
                   <div className="flex items-center">
-                    <label className="w-1/3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Email</label>
-                    <span className="flex-1 text-sm text-teal-600 hover:underline cursor-pointer">{lead.email || "—"}</span>
+                    <label className="w-32 shrink-0 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Email</label>
+                    <span className="flex-1 text-sm text-teal-600 hover:underline cursor-pointer truncate">{lead.email || "—"}</span>
                   </div>
                   <div className="flex items-center">
-                    <label className="w-1/3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Phone</label>
+                    <label className="w-32 shrink-0 text-[11px] font-bold text-gray-400 uppercase tracking-widest">Phone</label>
                     <span className="flex-1 text-sm text-gray-700">{lead.phone || "—"}</span>
                   </div>
                 </div>
               </div>
 
               {/* Right Grid */}
-              <div className="space-y-4 border-l pl-12 border-gray-50">
+              <div className="space-y-4 border-l pl-8 border-gray-100">
                 <div className="flex items-center">
-                  <label className="w-1/3 text-sm font-bold text-gray-900">Assigned To</label>
-                  <div className="flex-1 flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-indigo-50 text-[10px] flex items-center justify-center font-black text-indigo-600 border border-indigo-100">{salesperson.charAt(0)}</div>
-                    <span className="text-sm font-bold text-gray-800 uppercase tracking-tight">{salesperson}</span>
+                  <label className="w-32 shrink-0 text-sm font-bold text-gray-900">Assigned To</label>
+                  <div className="flex-1 flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 shrink-0 rounded bg-indigo-50 text-[10px] flex items-center justify-center font-black text-indigo-600 border border-indigo-100">{salesperson.charAt(0)}</div>
+                    <span className="text-sm font-bold text-gray-800 uppercase tracking-tight truncate">{salesperson}</span>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <label className="w-1/3 text-sm font-bold text-gray-900">Expected Closing</label>
-                  <span className="flex-1 text-sm text-gray-400 italic">{formatDate(expectedClosing) === "—" ? "No closing estimate" : formatDate(expectedClosing)}</span>
+                  <label className="w-32 shrink-0 text-sm font-bold text-gray-900">Expected Closing</label>
+                  <span className="flex-1 text-sm text-gray-400 font-medium italic">{formatDate(expectedClosing) === "—" ? "No closing estimate" : formatDate(expectedClosing)}</span>
                 </div>
                 <div className="flex items-center">
-                  <label className="w-1/3 text-sm font-bold text-gray-900">Tags</label>
-                  <div className="flex-1 flex flex-wrap gap-1">
+                  <label className="w-32 shrink-0 text-sm font-bold text-gray-900">Tags</label>
+                  <div className="flex-1 flex flex-wrap gap-1.5 min-w-0">
                     {leadTags.length > 0 ? leadTags.map(t => (
-                      <span key={t} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold rounded">{t}</span>
+                      <span key={t} className="px-2 py-0.5 bg-slate-50 text-slate-600 text-[10px] font-black uppercase tracking-wider rounded border border-slate-100">{t}</span>
                     )) : <span className="text-gray-400 text-xs italic">No tags</span>}
                   </div>
                 </div>
